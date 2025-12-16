@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Pal - Understand Your Emotions, Chat with Empathy</title>
+    <!-- Import Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import Font Awesome Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Custom Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Low-saturation warm color palette
+                        primary: '#E8F4F8', // Light blue
+                        secondary: '#FDF2F8', // Light pink
+                        accent: '#9F7AEA', // Lavender (accent color)
+                        text: '#4A5568', // Main text color
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+
+            .shadow-soft {
+                box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            }
+
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-text font-sans">
+<!-- Top Navigation -->
+<header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <!-- Logo + Slogan -->
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                <i class="fa fa-heart text-accent text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg">Emotion Pal</h1>
+                <p class="text-xs text-gray-500">Understand Your Emotions, Chat with Empathy</p>
+            </div>
+        </div>
+
+        <!-- Login / Signup Entrance -->
+        <div class="hidden md:flex gap-3">
+            <a href="/login" class="px-4 py-2 text-accent hover:text-accent/80 transition-all-300">Log In</a>
+            <a href="/register"
+               class="px-4 py-2 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300">Sign
+                Up<i class="fa fa-arrow-right ml-1"></i></a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-text hover:text-accent transition-all-300">
+            <i class="fa fa-bars text-xl"></i>
+        </button>
+    </div>
+</header>
+
+<main class="container mx-auto px-4 py-8 md:py-16">
+    <!-- Emotion Chat Demo Module -->
+    <section class="mb-12 md:mb-20">
+        <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-soft p-6 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold mb-2 text-center">Can AI Understand You?</h2>
+            <p class="text-gray-500 text-center mb-8">Type any text, and AI will instantly recognize your emotions and
+                respond with empathy</p>
+
+            <!-- Input Area -->
+            <div class="mb-6">
+                    <textarea id="chat-input"
+                              class="w-full h-24 p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300 resize-none"
+                              placeholder="e.g.: I'm so stressed out from working overtime today..."></textarea>
+                <div class="flex justify-end mt-3">
+                    <button id="send-btn"
+                            class="px-6 py-3 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300 flex items-center gap-2">
+                        <i class="fa fa-paper-plane"></i>
+                        Chat with AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- Emotion Recognition Result Display -->
+            <div id="result-area" class="hidden">
+                <!-- Emotion Tags -->
+                <div class="mb-4 flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-secondary text-accent rounded-full text-sm">
+                            <i class="fa fa-tag mr-1"></i> Emotion: Anxiety
+                        </span>
+                    <span class="px-3 py-1 bg-primary text-blue-600 rounded-full text-sm">
+                            <i class="fa fa-thermometer-half mr-1"></i> Emotion Intensity: 85%
+                        </span>
+                </div>
+
+                <!-- AI Empathetic Response -->
+                <div class="bg-primary/50 rounded-xl p-4 border-l-4 border-accent">
+                    <div class="flex items-start gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                            <i class="fa fa-robot text-accent"></i>
+                        </div>
+                        <h3 class="font-medium">AI Empathetic Response</h3>
+                    </div>
+                    <p class="text-gray-700 ml-11">
+                        I can feel your anxiety and stress right now😟. Working overtime really takes a toll on both your
+                        mind and body. Take a deep breath first, focus on each small task in front of you, and reward
+                        yourself a little after completing each one. If the pressure is too much, it's okay to pause and
+                        rest - you've been doing great!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Introduction -->
+    <section>
+        <h2 class="text-2xl md:text-3xl font-bold mb-10 text-center">Core Features</h2>
+
+        <!-- Web: 3-column layout / Mobile: 1-column layout -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1: Emotion Detection -->
+            <div class="bg-white rounded-2xl shadow-soft p-6 md:p-8 hover:translate-y-[-5px] transition-all-300">
+                <div class="w-14 h-14 rounded-full bg-primary flex items-center justify-center mb-6">
+                    <i class="fa fa-heartbeat text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Emotion Detection</h3>
+                <p class="text-gray-600">
+                    Precisely identify emotional tendencies in text, covering 20+ emotion types including joy, sadness,
+                    anxiety, anger, to capture your true feelings.
+                </p>
+            </div>
+
+            <!-- Feature 2: AI Empathy -->
+            <div class="bg-white rounded-2xl shadow-soft p-6 md:p-8 hover:translate-y-[-5px] transition-all-300">
+                <div class="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mb-6">
+                    <i class="fa fa-comments text-2xl text-accent"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">AI Empathy</h3>
+                <p class="text-gray-600">
+                    Generate warm, empathetic responses based on emotion analysis - not just simple comfort, but genuine
+                    understanding of the needs behind your emotions.
+                </p>
+            </div>
+
+            <!-- Feature 3: Friend Chat -->
+            <div class="bg-white rounded-2xl shadow-soft p-6 md:p-8 hover:translate-y-[-5px] transition-all-300">
+                <div class="w-14 h-14 rounded-full bg-primary/70 flex items-center justify-center mb-6">
+                    <i class="fa fa-user-friends text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Friend Chat</h3>
+                <p class="text-gray-600">
+                    Support real-time chat with friends, with intelligent emotion reminder features to help you better
+                    understand each other's moods and make communication more heartfelt.
+                </p>
+            </div>
+        </div>
+
+        <!-- Get Started Button -->
+        <div class="text-center mt-12">
+            <button class="px-8 py-4 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300 text-lg font-medium">
+                Get Started <i class="fa fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </section>
+</main>
+
+<!-- Footer Information -->
+<footer class="bg-gray-50 border-t border-gray-200 mt-16">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-gray-500 text-sm">
+                © 2025 Emotion Pal All Rights Reserved
+            </div>
+            <div class="flex gap-6 text-sm">
+                <a href="#" class="text-gray-500 hover:text-accent transition-all-300">Privacy Policy</a>
+                <a href="#" class="text-gray-500 hover:text-accent transition-all-300">User Agreement</a>
+                <a href="#" class="text-gray-500 hover:text-accent transition-all-300">Contact Us</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Interaction Logic Script -->
+<script>
+    // Get DOM Elements
+    const sendBtn = document.getElementById('send-btn');
+    const chatInput = document.getElementById('chat-input');
+    const resultArea = document.getElementById('result-area');
+
+    // Simulate AI Emotion Recognition Interaction
+    sendBtn.addEventListener('click', function () {
+        // Validate Input Content
+        if (!chatInput.value.trim()) {
+            alert('Please enter some text and let AI try to understand you～');
+            return;
+        }
+
+        // Show Loading State
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing...';
+
+        // Simulate API Request Delay
+        setTimeout(() => {
+            // Show Result Area
+            resultArea.classList.remove('hidden');
+            // Scroll to Result Area
+            resultArea.scrollIntoView({behavior: 'smooth'});
+            // Restore Button State
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fa fa-paper-plane"></i> Chat with AI';
+        }, 1500);
+    });
+
+    // Mobile Adaptation: Adjust Scroll When Input Gets Focus
+    chatInput.addEventListener('focus', function () {
+        if (window.innerWidth < 768) {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    });
+</script>
+</body>
+</html>

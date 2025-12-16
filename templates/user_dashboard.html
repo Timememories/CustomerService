@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+        .dashboard-header h1 {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .section-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+        }
+        .section-card h2 {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.25rem;
+            font-size: 1.375rem;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            border: none;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.95rem;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .btn-info {
+            background-color: #3498db;
+            border: none;
+            font-size: 0.875rem;
+            padding: 0.35rem 0.65rem;
+        }
+        .btn-info:hover {
+            background-color: #2980b9;
+        }
+        .form-select, .form-control {
+            border: 1px solid #dce3ed;
+            padding: 0.5rem;
+        }
+        .table th {
+            font-weight: 600;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .rating-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logout-btn {
+            padding: 0.45rem 1rem;
+            font-size: 0.95rem;
+        }
+        .text-muted-placeholder {
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>User Dashboard: {{ session.username }}</h1>
+            <a href="/logout" class="btn btn-danger logout-btn">Logout</a>
+        </div>
+
+        <!-- Book a Service -->
+        <div class="section-card">
+            <h2>Book a Service</h2>
+            {% if services %}
+            <form method="POST" action="/book_appointment">
+                <select name="service_id" class="form-select mb-3" required>
+                    <option value="" disabled selected>Select a service</option>
+                    {% for service in services %}
+                    <option value="{{ service.id }}">{{ service.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="datetime-local" name="date" class="form-control mb-3" required>
+                <button type="submit" class="btn btn-primary w-100">Book Appointment</button>
+            </form>
+            {% else %}
+            <p class="text-warning mb-0">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                No services available. Please contact the administrator to add services.
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Your Appointments -->
+        <div class="section-card">
+            <h2>Your Appointments</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td>{{ appt.service.name if appt.service else 'Service deleted' }}</td>
+                            <td>{{ appt.date }}</td>
+                            <td><span class="badge bg-secondary">{{ appt.status }}</span></td>
+                            <td>{{ appt.rating or '—' }}</td>
+                            <td>
+                                {% if not appt.rating %}
+                                <form method="POST" action="/rate_appointment/{{ appt.id }}" class="rating-form">
+                                    <select name="rating" class="form-select form-select-sm" style="width: auto; min-width: 60px;">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-info btn-sm">Rate</button>
+                                </form>
+                                {% else %}
+                                <span class="text-muted-placeholder">Rated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not appointments %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No appointments.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Start Chat -->
+        <div class="section-card">
+            <h2>Start Chat with Support</h2>
+            <form method="POST" action="/start_chat">
+                <button type="submit" class="btn btn-success w-100">Start Chat</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

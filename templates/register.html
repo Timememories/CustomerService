@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign Up - Emotion Pal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 品牌色系统一：低饱和度暖色系 */
+        :root {
+            --accent: #9F7AEA; /* 主强调色（淡紫） */
+            --accent-light: #E8F4F8; /* 浅蓝背景 */
+            --accent-secondary: #FDF2F8; /* 浅粉背景 */
+            --text-main: #4A5568; /* 正文色 */
+            --text-dark: #2c3e50; /* 深色文本 */
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --success: #34D399; /* 成功色 */
+            --error: #F87171; /* 错误色 */
+        }
+
+        body {
+            /* 替换为品牌渐变背景 */
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent-secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            color: var(--text-main);
+        }
+
+        .registration-card {
+            background-color: #ffffff;
+            border-radius: 20px; /* 更圆润的边角 */
+            box-shadow: var(--shadow-soft);
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 顶部品牌装饰条 */
+        .registration-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent), #805AD5);
+        }
+
+        .registration-card h1 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* 品牌图标装饰 */
+        .registration-card h1::before {
+            content: "\f004";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #E2E8F0;
+            border-radius: 12px; /* 圆润输入框/下拉框 */
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            color: var(--text-main);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent); /* 聚焦色改为品牌色 */
+            box-shadow: 0 0 0 0.25rem rgba(159, 122, 234, 0.2); /* 柔和的聚焦阴影 */
+            outline: none;
+        }
+
+        /* 密码输入框容器样式 */
+        .password-input-group {
+            position: relative;
+        }
+
+        /* 小眼睛图标样式 */
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94A3B8;
+            transition: all 0.2s ease;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: var(--accent);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .btn-primary {
+            background-color: var(--accent); /* 按钮改为品牌色 */
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px; /* 圆润按钮 */
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #805AD5; /* hover加深 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* 提示框样式优化 */
+        .alert-error {
+            background-color: #FEF2F2;
+            border: 1px solid var(--error);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #991B1B;
+        }
+
+        .alert-success {
+            background-color: #ECFDF5;
+            border: 1px solid var(--success);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #065F46;
+        }
+
+        .alert-list ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+
+        .login-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--accent); /* 链接色改为品牌色 */
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+            color: #805AD5;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* 标签小图标 */
+        .form-label::before {
+            content: "";
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--accent);
+        }
+
+        /* 密码规则提示样式 */
+        .password-hint {
+            font-size: 0.875rem;
+            color: #64748B;
+            margin-top: 0.5rem;
+            padding-left: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .password-hint::before {
+            content: "\f0eb";
+            font-family: "Font Awesome 6 Free";
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        /* 角色下拉框样式优化 */
+        .form-select option {
+            background-color: #ffffff;
+            color: var(--text-main);
+            padding: 0.5rem;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 576px) {
+            .registration-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .registration-card h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="registration-card mx-auto">
+        <h1>Create Account</h1>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <!-- 判断消息类型：成功/错误 -->
+        {% set message_type = 'success' if '成功' in messages[0] or 'successful' in messages[0] else 'error' %}
+        <div class="alert-{{ message_type }}">
+            <ul class="mb-0">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-4">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" required
+                       placeholder="Choose a username">
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <!-- 密码输入框容器：添加相对定位 -->
+                <div class="password-input-group">
+                    <input type="password" id="password" name="password" class="form-control" required
+                           placeholder="Create a password">
+                    <!-- 小眼睛图标 -->
+                    <i class="fas fa-eye password-toggle" id="passwordToggle"></i>
+                </div>
+                <div class="password-hint">
+                    At least 8 characters, include uppercase, lowercase & numbers
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="role" class="form-label">Role</label>
+                <select id="role" name="role" class="form-select" required>
+                    <option value="user" selected>User</option>
+                    <option value="agent">Support Agent</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" id="signupBtn">
+                Create Account
+            </button>
+        </form>
+
+        <a href="/login" class="login-link">
+            <i class="fas fa-arrow-left me-1"></i> Already have an account? Log in
+        </a>
+    </div>
+</div>
+
+<!-- 密码查看功能JS + 体验优化 -->
+<script>
+    // 获取元素
+    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordInput = document.getElementById('password');
+    const signupBtn = document.getElementById('signupBtn');
+    const usernameInput = document.getElementById('username');
+
+    // 页面加载后自动聚焦用户名输入框
+    window.addEventListener('DOMContentLoaded', function () {
+        usernameInput.focus();
+    });
+
+    // 点击小眼睛切换密码可见性
+    passwordToggle.addEventListener('click', function () {
+        // 切换输入框类型
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // 切换图标（睁眼/闭眼）
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    // 点击其他区域恢复密码隐藏（优化体验）
+    document.addEventListener('click', function (e) {
+        if (!passwordToggle.contains(e.target) && !passwordInput.contains(e.target)) {
+            if (passwordInput.getAttribute('type') === 'text') {
+                passwordInput.setAttribute('type', 'password');
+                passwordToggle.classList.remove('fa-eye-slash');
+                passwordToggle.classList.add('fa-eye');
+            }
+        }
+    });
+
+    // 输入框回车提交表单
+    document.querySelectorAll('.form-control, .form-select').forEach(input => {
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                signupBtn.click();
+            }
+        });
+    });
+
+    // 表单提交加载状态
+    document.querySelector('form').addEventListener('submit', function () {
+        signupBtn.disabled = true;
+        signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Creating Account...';
+
+        // 防止表单提交超时导致按钮一直禁用（备用）
+        setTimeout(() => {
+            if (signupBtn.disabled) {
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = 'Create Account';
+            }
+        }, 10000);
+    });
+</script>
+</body>
+</html>

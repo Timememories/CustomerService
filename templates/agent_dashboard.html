@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agent Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+        .dashboard-header h1 {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .section-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+        }
+        .section-card h2 {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.25rem;
+            font-size: 1.375rem;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            border: none;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.95rem;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 0.45rem 1rem;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .table th {
+            font-weight: 600;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .logout-btn {
+            padding: 0.45rem 1rem;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Agent Dashboard: {{ session.username }}</h1>
+            <a href="/logout" class="btn btn-danger logout-btn">Logout</a>
+        </div>
+
+        <div class="section-card">
+            <h2>Available Chat Sessions</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>User</th>
+                            <th>Started</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sess in sessions %}
+                        <tr>
+                            <td>{{ sess.id }}</td>
+                            <td>{{ sess.user.username }}</td>
+                            <td>{{ sess.start_time }}</td>
+                            <td>
+                                <a href="/join_chat/{{ sess.id }}" class="btn btn-primary btn-sm">Join</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .chat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.75rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .chat-card h1 {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        #chat {
+            height: 400px;
+            overflow-y: auto;
+            background-color: #f9fbfd;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid #e1e8f0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.5;
+        }
+        .message {
+            margin-bottom: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+        .message.user {
+            background-color: #e3f2fd;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.other {
+            background-color: #f0f4f8;
+        }
+        .message.bot {
+            background-color: #e8f5e9;
+            border-left: 3px solid #4caf50;
+        }
+        .message-header {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            color: #2c3e50;
+        }
+        .message-content {
+            font-size: 0.95rem;
+            color: #34495e;
+        }
+        .sentiment-badge {
+            font-size: 0.75rem;
+            opacity: 0.75;
+            margin-left: 0.35rem;
+        }
+        .input-group {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            border: none;
+            margin-top: 1rem;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
+    <script>
+        var socket = io();
+        socket.on('connect', function() {
+            socket.emit('join', {room: '{{ session_id }}', username: '{{ session.username }}'});
+        });
+        socket.on('message', function(data) {
+            var chat = document.getElementById('chat');
+            var msgDiv = document.createElement('div');
+
+            // Определяем тип отправителя
+            let msgClass = 'message other';
+            let showSentiment = false;
+            if (data.sender === '{{ session.username }}') {
+                msgClass = 'message user';
+                showSentiment = true; // Только пользовательские сообщения показывают sentiment
+            } else if (data.sender === 'Bot') {
+                msgClass = 'message bot';
+            }
+
+            let emoji = '';
+            let sentimentPart = '';
+            if (showSentiment) {
+                if (data.sentiment > 0.5) emoji = ' 😊';
+                else if (data.sentiment > 0) emoji = ' 🙂';
+                else if (data.sentiment < -0.5) emoji = ' 😠';
+                else if (data.sentiment < 0) emoji = ' 😔';
+                else emoji = ' 😐';
+                sentimentPart = `<span class="sentiment-badge">(sentiment: ${data.sentiment.toFixed(2)})</span>`;
+            }
+
+            msgDiv.className = msgClass;
+            msgDiv.innerHTML = `
+                <div class="message-header">${data.sender}</div>
+                <div class="message-content">${data.msg}${emoji}${sentimentPart}</div>
+            `;
+            chat.appendChild(msgDiv);
+            chat.scrollTop = chat.scrollHeight;
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-card">
+            <h1>Chat — Session {{ session_id }}</h1>
+
+            <div id="chat">
+                {% for msg in messages %}
+                    {% set sender_name = msg.sender.username if msg.sender else 'Bot' %}
+                    {% set is_user = (sender_name == session.username) %}
+                    {% set msg_class = 'message user' if is_user else 'message bot' if sender_name == 'Bot' else 'message other' %}
+
+                    {% set emoji = '' %}
+                    {% set sentiment_part = '' %}
+                    {% if is_user %}
+                        {% if msg.sentiment > 0.5 %}{% set emoji = ' 😊' %}
+                        {% elif msg.sentiment > 0 %}{% set emoji = ' 🙂' %}
+                        {% elif msg.sentiment < -0.5 %}{% set emoji = ' 😠' %}
+                        {% elif msg.sentiment < 0 %}{% set emoji = ' 😔' %}
+                        {% else %}{% set emoji = ' 😐' %}{% endif %}
+                        {% set sentiment_part = '<span class="sentiment-badge">(sentiment: ' + msg.sentiment|string + ')</span>' %}
+                    {% endif %}
+
+                    <div class="{{ msg_class }}">
+                        <div class="message-header">{{ sender_name }}</div>
+                        <div class="message-content">{{ msg.text }}{{ emoji | safe }}{{ sentiment_part | safe }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="message" class="form-control" placeholder="Type your message..."
+                       onkeyup="if(event.keyCode === 13) sendMessage();">
+                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+            </div>
+
+            <a href="/dashboard" class="btn btn-secondary w-100">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var text = document.getElementById('message').value;
+            if (text.trim() === '') return;
+            socket.emit('message', {
+                room: '{{ session_id }}',
+                text: text,
+                sender_id: {{ session.user_id }},
+                username: '{{ session.username }}'
+            });
+            document.getElementById('message').value = '';
+        }
+    </script>
+</body>
+</html>

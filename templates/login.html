@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Emotion Pal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 品牌色系统一：低饱和度暖色系 */
+        :root {
+            --accent: #9F7AEA; /* 主强调色（淡紫） */
+            --accent-light: #E8F4F8; /* 浅蓝背景 */
+            --accent-secondary: #FDF2F8; /* 浅粉背景 */
+            --text-main: #4A5568; /* 正文色 */
+            --text-dark: #2c3e50; /* 深色文本 */
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            /* 替换为品牌渐变背景 */
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent-secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            color: var(--text-main);
+        }
+
+        .login-card {
+            background-color: #ffffff;
+            border-radius: 20px; /* 更圆润的边角 */
+            box-shadow: var(--shadow-soft);
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 顶部品牌装饰条 */
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent), #805AD5);
+        }
+
+        .login-card h1 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* 品牌图标装饰 */
+        .login-card h1::before {
+            content: "\f004";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .form-control {
+            border: 1px solid #E2E8F0;
+            border-radius: 12px; /* 圆润输入框 */
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            color: var(--text-main);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent); /* 聚焦色改为品牌色 */
+            box-shadow: 0 0 0 0.25rem rgba(159, 122, 234, 0.2); /* 柔和的聚焦阴影 */
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: var(--accent); /* 按钮改为品牌色 */
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px; /* 圆润按钮 */
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #805AD5; /* hover加深 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            color: var(--text-main);
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #F1F5F9;
+            border-color: var(--accent);
+        }
+
+        /* 提示消息样式优化 */
+        .alert-list {
+            background-color: var(--accent-secondary); /* 浅粉背景 */
+            border: 1px solid #FBB6CE;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .alert-success {
+            background-color: #ECFDF5;
+            border-color: #34D399;
+            color: #065F46;
+        }
+
+        .alert-error {
+            background-color: #FEF2F2;
+            border-color: #F87171;
+            color: #991B1B;
+        }
+
+        .alert-list ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+
+        .register-link, .forgot-password-link {
+            display: inline-block;
+            color: var(--accent); /* 链接色改为品牌色 */
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .register-link:hover, .forgot-password-link:hover {
+            text-decoration: underline;
+            color: #805AD5;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* 标签小图标 */
+        .form-label::before {
+            content: "";
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--accent);
+        }
+
+        /* 密码输入框容器 */
+        .password-input-group {
+            position: relative;
+        }
+
+        /* 密码显隐图标 */
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94A3B8;
+            transition: all 0.2s ease;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: var(--accent);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* 忘记密码链接样式 */
+        .forgot-password-container {
+            text-align: right;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* 底部链接容器 */
+        .bottom-links {
+            text-align: center;
+            margin-top: 1.25rem;
+        }
+
+        /* 模态框样式优化 */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 1rem;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-title::before {
+            content: "\f0e0";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .modal-footer {
+            border-top: 1px solid #E2E8F0;
+            padding-top: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .login-card h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-card mx-auto">
+            <h1>Login to Emotion Pal</h1>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert-list">
+                        <ul class="mb-0">
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- 动态提示框 -->
+            <div id="dynamicAlert" class="alert-list d-none"></div>
+
+            <form method="POST">
+                <div class="mb-4"> <!-- 增加间距提升呼吸感 -->
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required placeholder="Enter your username">
+                </div>
+                <div class="mb-2">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-input-group">
+                        <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password">
+                        <i class="fas fa-eye password-toggle" id="passwordToggle"></i>
+                    </div>
+                </div>
+
+                <!-- 忘记密码链接 -->
+                <div class="forgot-password-container">
+                    <a href="#" class="forgot-password-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Log In</button>
+            </form>
+
+            <!-- 底部链接 -->
+            <div class="bottom-links">
+                Don’t have an account? <a href="/register" class="register-link">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 忘记密码模态框 -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-2">
+                    <h5 class="modal-title w-100 text-center" id="forgotPasswordModalLabel">Verify Your Account</h5>
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="forgotPasswordForm">
+                        <div class="mb-3">
+                            <label for="resetUsername" class="form-label">Username or Email</label>
+                            <input type="text" id="resetUsername" name="resetUsername" class="form-control" required placeholder="Enter your username/email">
+                        </div>
+                        <p class="text-sm text-gray-500 text-center mb-0">
+                            Verify your account to proceed with password reset
+                        </p>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-2">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" id="verifyUserBtn">Verify Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 密码显隐功能
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordInput = document.getElementById('password');
+
+        passwordToggle.addEventListener('click', function() {
+            // 切换输入框类型
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // 切换图标
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // 点击其他区域隐藏密码
+        document.addEventListener('click', function(e) {
+            if (!passwordToggle.contains(e.target) && !passwordInput.contains(e.target)) {
+                if (passwordInput.getAttribute('type') === 'text') {
+                    passwordInput.setAttribute('type', 'password');
+                    passwordToggle.classList.remove('fa-eye-slash');
+                    passwordToggle.classList.add('fa-eye');
+                }
+            }
+        });
+
+        // 表单焦点优化：页面加载后自动聚焦用户名输入框
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+        });
+
+        // 输入框回车提交
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.querySelector('button[type="submit"]').click();
+                }
+            });
+        });
+
+        // 显示动态提示框
+        function showAlert(message, isSuccess = true) {
+            const alertDiv = document.getElementById('dynamicAlert');
+            alertDiv.textContent = message;
+            alertDiv.classList.remove('d-none', 'alert-success', 'alert-error');
+            alertDiv.classList.add(isSuccess ? 'alert-success' : 'alert-error');
+
+            // 3秒后隐藏
+            setTimeout(() => {
+                alertDiv.classList.add('d-none');
+            }, 3000);
+        }
+
+        // 验证用户是否存在 - 调用Flask接口
+        const verifyUserBtn = document.getElementById('verifyUserBtn');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+
+        verifyUserBtn.addEventListener('click', async function() {
+            const resetUsername = document.getElementById('resetUsername').value.trim();
+
+            if (!resetUsername) {
+                alert('Please enter your username or email address');
+                return;
+            }
+
+            // 按钮加载状态
+            verifyUserBtn.disabled = true;
+            verifyUserBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Verifying...';
+
+            try {
+                // 调用Flask后端接口验证用户
+                const response = await fetch('/api/verify-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken() // CSRF保护（如果启用）
+                    },
+                    body: JSON.stringify({ username: resetUsername })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.exists) {
+                        // 用户存在 - 跳转到密码重置页面
+                        showAlert('User verified! Redirecting to password reset...');
+                        setTimeout(() => {
+                            // 传递用户名参数到重置页面
+                            window.location.href = `/reset-password?username=${encodeURIComponent(resetUsername)}`;
+                        }, 1500);
+                    } else {
+                        // 用户不存在
+                        showAlert('User not found! Please check your username/email.', false);
+                    }
+                } else {
+                    // 接口返回错误
+                    showAlert(data.message || 'Verification failed! Please try again.', false);
+                }
+            } catch (error) {
+                // 网络错误
+                console.error('Verification error:', error);
+                showAlert('Network error! Please check your connection.', false);
+            } finally {
+                // 恢复按钮状态
+                verifyUserBtn.disabled = false;
+                verifyUserBtn.innerHTML = 'Verify Account';
+
+                // 关闭模态框（仅当验证失败时）
+                const modal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+                if (!document.getElementById('dynamicAlert').classList.contains('alert-success')) {
+                    modal.hide();
+                }
+            }
+        });
+
+        // 获取CSRF Token（适配Flask-WTF）
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrf_token') {
+                    return value;
+                }
+            }
+            return '';
+        }
+    </script>
+</body>
+</html>

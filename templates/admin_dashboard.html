@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+        .dashboard-header h1 {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .section-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+        }
+        .section-card h2 {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.25rem;
+            font-size: 1.375rem;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            border: none;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.95rem;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .table th {
+            font-weight: 600;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-top: 0.5rem;
+        }
+        .logout-btn {
+            padding: 0.45rem 1rem;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Admin Dashboard: {{ session.username }}</h1>
+            <a href="/logout" class="btn btn-danger logout-btn">Logout</a>
+        </div>
+
+        <div class="section-card">
+            <h2>User Management</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td><span class="badge bg-secondary">{{ user.role }}</span></td>
+                            <td>
+                                <a href="/admin/delete_user/{{ user.id }}" class="btn btn-danger btn-sm">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>Service Management</h2>
+            <form method="POST" action="/admin/add_service" class="mb-4">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Service Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Service</button>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in services %}
+                        <tr>
+                            <td>{{ service.id }}</td>
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.description or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>Chat Sessions</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Agent</th>
+                            <th>Started</th>
+                            <th>Ended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sess in sessions %}
+                        <tr>
+                            <td>{{ sess.id }}</td>
+                            <td>{{ sess.user.username }}</td>
+                            <td>{{ sess.agent.username if sess.agent_id else '—' }}</td>
+                            <td>{{ sess.start_time }}</td>
+                            <td>{{ sess.end_time if sess.end_time else 'Active' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
