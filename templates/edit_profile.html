@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .profile-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        .avatar-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .avatar-upload-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .avatar-upload-btn:hover {
+            background-color: #2980b9;
+        }
+        .avatar-upload input[type="file"] {
+            display: none;
+        }
+        .avatar-hint {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .alert-message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+        .upload-loading {
+            color: #3498db;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <h1>Edit Profile</h1>
+                <a href="/dashboard" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
+            </div>
+
+            <!-- 消息提示 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert-message alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/edit-profile" id="profileForm">
+                <!-- 隐藏字段存储头像URL -->
+                <input type="hidden" id="avatarUrl" name="avatar_url" value="{{ user.avatar or '' }}">
+
+                <!-- 头像上传区域 -->
+                <div class="avatar-section">
+                    <h5 class="mb-3">Profile Picture</h5>
+                    <!-- 头像预览 -->
+                    <img id="avatarPreview" class="avatar-preview"
+                         src="{{ user.avatar or 'https://via.placeholder.com/120?text=No+Avatar' }}"
+                         alt="Profile Avatar">
+
+                    <!-- 头像上传按钮 -->
+                    <div class="avatar-upload">
+                        <label for="avatarUpload" class="avatar-upload-btn">
+                            <i class="bi bi-upload me-1"></i> Change Avatar
+                        </label>
+                        <input type="file" id="avatarUpload" accept="image/*">
+                        <small class="avatar-hint">Supported formats: JPG, PNG, WEBP (max 2MB)</small>
+                        <div class="upload-loading" id="uploadLoading">Uploading avatar...</div>
+                    </div>
+                </div>
+
+                <!-- 用户名（不可编辑） -->
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" class="form-control" value="{{ user.username }}" disabled>
+                    <small class="text-muted">Username cannot be changed</small>
+                </div>
+
+                <!-- 真实姓名 -->
+                <div class="form-group">
+                    <label class="form-label" for="real_name">Real Name</label>
+                    <input type="text" id="real_name" name="real_name" class="form-control"
+                           value="{{ user.real_name or '' }}" placeholder="Enter your real name">
+                </div>
+
+                <!-- 邮箱 -->
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control"
+                           value="{{ user.email or '' }}" placeholder="Enter your email">
+                </div>
+
+                <!-- 手机号 -->
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-control"
+                           value="{{ user.phone or '' }}" placeholder="Enter your phone number">
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="bi bi-save me-1"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量存储头像URL
+        let avatarUrl = document.getElementById('avatarUrl').value;
+        const uploadLoading = document.getElementById('uploadLoading');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // 预览并上传头像
+        document.getElementById('avatarUpload').addEventListener('change', async function(event) {
+            const input = event.target;
+            const preview = document.getElementById('avatarPreview');
+
+            if (input.files && input.files[0]) {
+                // 验证文件大小（2MB）
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                if (input.files[0].size > maxSize) {
+                    alert('File size exceeds 2MB limit. Please choose a smaller image.');
+                    input.value = '';
+                    return;
+                }
+
+                // 显示加载状态
+                uploadLoading.style.display = 'block';
+                submitBtn.disabled = true;
+
+                try {
+                    // 1. 预览图片
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                    }
+                    reader.readAsDataURL(input.files[0]);
+
+                    // 2. 构建FormData调用上传接口
+                    const formData = new FormData();
+                    formData.append('image', input.files[0]);
+
+                    const response = await fetch('https://www.eloadspider.com/oss/resource/user/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': '*/*',
+                            'User-Agent': 'PostmanRuntime-ApipostRuntime/1.1.0',
+                            'Connection': 'keep-alive'
+                        },
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.message === 'success') {
+                        // 保存上传后的完整URL
+                        avatarUrl = result.complete;
+                        document.getElementById('avatarUrl').value = avatarUrl;
+                        alert('Avatar uploaded successfully!');
+                    } else {
+                        throw new Error('Upload failed: ' + (result.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Avatar upload error:', error);
+                    alert('Failed to upload avatar: ' + error.message);
+                    // 恢复原头像
+                    preview.src = "{{ user.avatar or 'https://via.placeholder.com/120?text=No+Avatar' }}";
+                } finally {
+                    // 隐藏加载状态，恢复提交按钮
+                    uploadLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+                    // 清空文件输入框
+                    input.value = '';
+                }
+            }
+        });
+
+        // 拖拽上传逻辑
+        const avatarPreview = document.getElementById('avatarPreview');
+        const avatarUpload = document.getElementById('avatarUpload');
+
+        avatarPreview.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            avatarPreview.style.borderColor = '#3498db';
+            avatarPreview.style.boxShadow = '0 0 0 2px rgba(52, 152, 219, 0.2)';
+        });
+
+        avatarPreview.addEventListener('dragleave', () => {
+            avatarPreview.style.borderColor = '#f1f5f9';
+            avatarPreview.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+        });
+
+        avatarPreview.addEventListener('drop', (e) => {
+            e.preventDefault();
+            avatarPreview.style.borderColor = '#f1f5f9';
+            avatarPreview.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                avatarUpload.files = e.dataTransfer.files;
+                // 手动触发change事件
+                avatarUpload.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+</body>
+</html>

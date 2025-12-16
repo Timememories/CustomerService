@@ -8,29 +8,70 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
+            /* 主色调 */
             --accent: #9F7AEA;
+            --accent-dark: #805AD5;
+            --accent-light: #E8F4F8;
+            --accent-secondary: #FDF2F8;
+
+            /* 功能色 */
             --primary: #3498db;
             --success: #2ecc71;
             --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+
+            /* 文本颜色 */
+            --text-main: #4A5568;
             --text-dark: #2c3e50;
-            --text-muted: #6b7280;
-            --light-bg: #f5f7fa;
+            --text-muted: #64748B;
+            --text-light: #94A3B8;
+
+            /* 背景色 */
+            --bg-primary: #ffffff;
+            --bg-secondary: #F8FAFC;
+            --bg-tertiary: #E2E8F0;
+
+            /* 阴影 */
             --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-            --nav-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 4px 12px rgba(159, 122, 234, 0.3);
+            --loading-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+
+            /* 侧边栏样式 */
             --sidebar-bg: #ffffff;
-            --sidebar-hover: #f8f9fa;
+            --sidebar-hover: #F8FAFC;
+            --sidebar-active: #E9D5FF;
+            --sidebar-active-text: #805AD5;
+
+            /* 下拉菜单样式 */
+            --dropdown-bg: #ffffff;
+            --dropdown-hover: #F8FAFC;
+            --dropdown-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            --dropdown-border: #E2E8F0;
+
+            /* 过渡效果 */
+            --transition-default: all 0.2s ease;
+            --transition-btn: all 0.3s ease;
+            --transition-loading: all 0.5s ease-in-out;
         }
 
-        /* 顶部导航栏样式 */
+        /* 顶部导航栏样式 - 统一优化 */
         .main-nav {
-            background-color: #ffffff;
+            background-color: var(--bg-primary);
             box-shadow: var(--nav-shadow);
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 0;
+            transition: var(--transition-default);
+        }
+
+        .main-nav.scrolled {
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem 0;
         }
 
         .nav-container {
@@ -40,6 +81,7 @@
             max-width: 1400px;
             margin: 0 auto;
             width: 100%;
+            padding: 0 1.5rem;
         }
 
         .brand {
@@ -48,13 +90,18 @@
             gap: 0.75rem;
             text-decoration: none;
             color: var(--text-dark);
+            transition: var(--transition-default);
+        }
+
+        .brand:hover {
+            color: var(--accent);
         }
 
         .brand-icon {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background-color: var(--accent/10);
+            background-color: rgba(159, 122, 234, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,34 +114,16 @@
             font-size: 1.1rem;
         }
 
-
-        /* 用户信息区域 */
+        /* 用户信息区域 - 统一下拉菜单样式 */
         .user-section {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .user-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background-color: var(--accent/20);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .user-avatar:hover {
-            transform: scale(1.05);
+            gap: 1rem;
+            position: relative;
         }
 
         .user-info {
+            text-align: right;
             display: none;
             @media (min-width: 768px) {
                 display: block;
@@ -102,14 +131,109 @@
         }
 
         .username {
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-dark);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .user-role {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+        }
+
+        /* 头像下拉容器 - 统一样式 */
+        .avatar-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-default);
+            border: 2px solid transparent;
+            overflow: hidden;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent);
+        }
+
+        /* 头像图片样式 */
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 下拉菜单样式 - 统一优化 */
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            width: 200px;
+            background: var(--dropdown-bg);
+            border-radius: 12px;
+            box-shadow: var(--dropdown-shadow);
+            border: 1px solid var(--dropdown-border);
+            padding: 0.75rem 0;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        /* 下拉菜单显示状态 */
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* 下拉菜单项样式 */
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: var(--transition-default);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--dropdown-hover);
+            color: var(--accent-dark);
+            padding-left: 1.5rem;
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .dropdown-item:hover i {
+            color: var(--accent-dark);
+        }
+
+        /* 下拉菜单分割线 */
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--dropdown-border);
+            margin: 0.5rem 0;
         }
 
         /* 移动端菜单按钮 */
@@ -120,26 +244,34 @@
             color: var(--text-dark);
             font-size: 1.25rem;
             cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            @media (max-width: 768px) {
+                display: block;
+            }
         }
 
         body {
-            background: linear-gradient(135deg, var(--light-bg) 0%, #e4edf5 100%);
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent-secondary) 100%);
             min-height: 100vh;
-            padding-top: 80px; /* 预留导航栏高度 */
+            padding-top: 80px;
             padding-bottom: 2rem;
-            color: var(--text-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
         }
 
-        /* 主布局容器 - 调整顺序：侧边栏在左，内容在右 */
+        /* 主布局容器 */
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 1.5rem;
             display: flex;
-            gap: 1.5rem;
+            gap: 2rem;
+            width: 100%;
+            margin-top: 1rem;
         }
 
-        /* 左侧侧边栏（原右侧） */
+        /* 左侧侧边栏 */
         .sidebar {
             width: 260px;
             background: var(--sidebar-bg);
@@ -148,17 +280,22 @@
             padding: 1.5rem;
             height: fit-content;
             position: sticky;
-            top: 90px;
+            top: 7rem;
             flex-shrink: 0;
+            transition: var(--transition-default);
+        }
+
+        .sidebar:hover {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-title {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: var(--text-dark);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             padding-bottom: 0.75rem;
-            border-bottom: 1px solid #e1e8f0;
+            border-bottom: 1px solid var(--bg-tertiary);
         }
 
         .sidebar-menu {
@@ -169,6 +306,8 @@
 
         .sidebar-menu-item {
             margin-bottom: 0.5rem;
+            border-radius: 10px;
+            transition: var(--transition-default);
         }
 
         .sidebar-menu-link {
@@ -176,21 +315,44 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.75rem 1rem;
-            border-radius: 10px;
-            color: var(--text-dark);
+            color: var(--text-main);
             text-decoration: none;
-            transition: all 0.2s ease;
+            border-radius: 10px;
+            transition: var(--transition-default);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-menu-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: var(--accent);
+            transform: translateY(100%);
+            transition: var(--transition-default);
         }
 
         .sidebar-menu-link:hover {
             background-color: var(--sidebar-hover);
-            color: var(--accent);
+            color: var(--text-dark);
+            padding-left: 1.25rem;
+        }
+
+        .sidebar-menu-link:hover::before {
+            transform: translateY(0);
         }
 
         .sidebar-menu-link.active {
-            background-color: var(--accent/10);
-            color: var(--accent);
+            background-color: var(--sidebar-active);
+            color: var(--sidebar-active-text);
             font-weight: 500;
+        }
+
+        .sidebar-menu-link.active::before {
+            transform: translateY(0);
         }
 
         .sidebar-menu-link i {
@@ -209,19 +371,26 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2.5rem;
+            flex-wrap: wrap;
         }
 
         .dashboard-header h1 {
             font-weight: 600;
             color: var(--text-dark);
+            margin-bottom: 0;
         }
 
         .section-card {
-            background: #ffffff;
+            background: var(--bg-primary);
             border-radius: 16px;
             box-shadow: var(--card-shadow);
             padding: 1.75rem;
             margin-bottom: 2rem;
+            transition: var(--transition-default);
+        }
+
+        .section-card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
 
         .section-card h2 {
@@ -232,6 +401,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--bg-tertiary);
         }
 
         .section-card h2 i {
@@ -239,43 +410,67 @@
         }
 
         .btn {
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 0.5rem 1rem;
             font-weight: 600;
-            transition: all 0.2s ease;
+            transition: var(--transition-btn);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.25);
         }
 
         .btn-primary {
             background-color: var(--primary);
-            border: none;
         }
 
         .btn-primary:hover {
             background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
         }
 
         .btn-success {
             background-color: var(--success);
-            border: none;
         }
 
         .btn-success:hover {
             background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(46, 204, 113, 0.2);
         }
 
         .btn-danger {
             background-color: var(--danger);
-            border: none;
         }
 
         .btn-danger:hover {
             background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.2);
+        }
+
+        .btn-outline-primary {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: white;
         }
 
         .table th {
             font-weight: 600;
             color: var(--text-dark);
-            background-color: #f8f9fa;
+            background-color: var(--bg-secondary);
         }
 
         .table td, .table th {
@@ -283,10 +478,16 @@
         }
 
         .status-badge {
-            padding: 0.25rem 0.75rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 500;
+            transition: var(--transition-default);
+        }
+
+        .status-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .status-active {
@@ -304,9 +505,42 @@
             color: #d97706;
         }
 
-        .search-bar {
-            max-width: 400px;
+        /* 搜索区域样式优化 */
+        .search-container {
+            display: flex;
+            gap: 1rem;
             margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: var(--transition-default);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
         }
 
         .filter-group {
@@ -314,10 +548,20 @@
             gap: 1rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .filter-group .form-select {
             max-width: 200px;
+            border: 1px solid var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .filter-group .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
         }
 
         .session-actions {
@@ -325,55 +569,96 @@
             gap: 0.5rem;
         }
 
+        /* 加载状态样式 */
+        .loading-overlay {
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-tertiary);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: var(--loading-shadow);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 空数据/错误提示样式 */
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i, .error-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .empty-state h4, .error-state h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .error-state {
+            color: var(--danger);
+        }
+
+        .error-state i {
+            color: var(--danger);
+        }
+
         /* 响应式适配 */
         @media (max-width: 992px) {
             .main-container {
                 flex-direction: column;
+                gap: 1.5rem;
             }
 
             .sidebar {
                 width: 100%;
                 position: static;
+                top: auto;
             }
 
             .sidebar-menu {
                 display: flex;
+                flex-wrap: wrap;
                 gap: 0.5rem;
-                overflow-x: auto;
-                padding-bottom: 0.5rem;
             }
 
             .sidebar-menu-item {
+                flex: 1;
+                min-width: 120px;
                 margin-bottom: 0;
-                flex-shrink: 0;
             }
 
             .sidebar-menu-link {
-                padding: 0.75rem;
-                white-space: nowrap;
+                justify-content: center;
+                text-align: center;
+            }
+
+            /* 移动端下拉菜单适配 */
+            .dropdown-menu {
+                right: auto;
+                left: -100px;
             }
         }
 
         @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .nav-links {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background-color: white;
-                flex-direction: column;
-                padding: 1rem;
-                gap: 0.75rem;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-                display: none;
-            }
-
-            .nav-links.show {
-                display: flex;
+            body {
+                padding-top: 70px;
             }
 
             .dashboard-header {
@@ -384,89 +669,182 @@
 
             .filter-group {
                 flex-direction: column;
+                align-items: stretch;
             }
 
             .filter-group .form-select {
                 max-width: 100%;
                 width: 100%;
             }
+
+            .user-section {
+                gap: 0.5rem;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .dropdown-menu {
+                left: -80px;
+            }
+
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar-menu-item {
+                min-width: 100%;
+            }
+
+            .section-card {
+                padding: 1.25rem;
+            }
+        }
+
+        /* 深色模式支持 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --accent-light: #2D2B40;
+                --accent-secondary: #3B2E4B;
+                --text-main: #E2E8F0;
+                --text-dark: #F8FAFC;
+                --text-muted: #94A3B8;
+                --bg-primary: #1A1A2E;
+                --bg-secondary: #16213E;
+                --bg-tertiary: #0F3460;
+                --sidebar-bg: #16213E;
+                --sidebar-hover: #0F3460;
+                --sidebar-active: #3B2E4B;
+                --dropdown-bg: #16213E;
+                --dropdown-hover: #0F3460;
+                --dropdown-border: #0F3460;
+            }
+
+            body {
+                background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent-secondary) 100%);
+            }
+
+            .search-input, .form-select {
+                background-color: var(--bg-secondary);
+                color: var(--text-main);
+                border-color: var(--bg-tertiary);
+            }
+        }
+
+        /* 无障碍样式 */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
         }
     </style>
 </head>
 <body>
-<!-- 顶部导航栏（含头像和菜单） -->
-<nav class="main-nav">
-    <div class="nav-container">
+<!-- 顶部导航栏（统一样式） -->
+<nav class="main-nav" id="mainNav">
+    <div class="container nav-container">
         <!-- 品牌标识 -->
-        <a href="/dashboard" class="brand">
+        <a href="/dashboard" class="brand" aria-label="Emotion Pal Dashboard">
             <div class="brand-icon">
-                <i class="fa fa-heart"></i>
+                <i class="fa fa-heart" aria-hidden="true"></i>
             </div>
             <span class="brand-name">Emotion Pal</span>
         </a>
 
-        <!-- 用户信息区域（含头像） -->
+        <!-- 用户信息区域（统一下拉菜单） -->
         <div class="user-section">
             <div class="user-info">
-                <div class="username">{{ session.username }}</div>
-                <div class="user-role">{{ session.role | capitalize }}</div>
+                <div class="username" aria-label="Username">{{ session.username }}</div>
+                <div class="user-role" aria-label="User role">{{ session.role | capitalize }}</div>
             </div>
-            <!-- 头像跳转用户中心 -->
-            <a href="/user_center" class="user-avatar-link">
-                <div class="user-avatar" title="Click to enter user center">
+
+            <!-- 头像下拉容器（统一交互） -->
+            <div class="avatar-dropdown" id="avatarDropdown" aria-haspopup="true" aria-expanded="false">
+                <div class="user-avatar" title="Click to open menu" tabindex="0" role="button" aria-label="User menu">
+                    <!-- 支持头像图片或首字母兜底 -->
+                    {% if session.avatar and session.avatar != '' %}
+                    <img
+                            src="{{ session.avatar }}"
+                            alt="{{ session.username }}'s avatar"
+                            class="avatar-img"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='{{ session.username[0].upper() }}'"
+                    >
+                    {% else %}
                     {{ session.username[0].upper() }}
+                    {% endif %}
                 </div>
-            </a>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <i class="fa fa-bars"></i>
+
+                <!-- 下拉菜单（统一样式） -->
+                <div class="dropdown-menu" id="dropdownMenu" aria-labelledby="avatarDropdown">
+                    <a href="/user_center" class="dropdown-item" aria-label="Go to user center" tabindex="0">
+                        <i class="fa fa-user-circle" aria-hidden="true"></i>
+                        <span>User Center</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="/logout" class="dropdown-item" aria-label="Logout from account" tabindex="0">
+                        <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu" tabindex="0">
+                <i class="fa fa-bars" aria-hidden="true"></i>
             </button>
         </div>
     </div>
 </nav>
 
-<!-- 主布局容器 - 调整顺序：侧边栏在左，内容在右 -->
+<!-- 主布局容器 -->
 <div class="main-container">
     <!-- 左侧侧边栏（功能菜单） -->
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="Function menu">
         <h3 class="sidebar-title">Function Menu</h3>
         <ul class="sidebar-menu">
             <li class="sidebar-menu-item">
-                <a href="/session_management" class="sidebar-menu-link active">
-                    <i class="fa fa-comments"></i>
+                <a href="/session_management" class="sidebar-menu-link active" aria-current="page"
+                   aria-label="Session management" tabindex="0">
+                    <i class="fa fa-comments" aria-hidden="true"></i>
                     <span>Session Management</span>
                 </a>
             </li>
             <li class="sidebar-menu-item">
-                <a href="/friends_management" class="sidebar-menu-link">
-                    <i class="fa fa-user-friends"></i>
+                <a href="/friends_management" class="sidebar-menu-link" aria-label="Friends management" tabindex="0">
+                    <i class="fa fa-user-friends" aria-hidden="true"></i>
                     <span>Friend Management</span>
                 </a>
             </li>
             {% if session.role == 'admin' %}
             <li class="sidebar-menu-item">
-                <a href="/user_management" class="sidebar-menu-link">
-                    <i class="fa fa-users"></i>
+                <a href="/user_management" class="sidebar-menu-link" aria-label="User management" tabindex="0">
+                    <i class="fa fa-users" aria-hidden="true"></i>
                     <span>User Management</span>
                 </a>
             </li>
             {% endif %}
             <li class="sidebar-menu-item">
-                <a href="/ai_analysis" class="sidebar-menu-link">
-                    <i class="fa fa-brain"></i>
+                <a href="/ai_analysis" class="sidebar-menu-link" aria-label="AI analysis" tabindex="0">
+                    <i class="fa fa-brain" aria-hidden="true"></i>
                     <span>AI Analysis</span>
                 </a>
             </li>
             {% if session.role in ['agent', 'admin'] %}
             <li class="sidebar-menu-item">
-                <a href="/emotion_statistics" class="sidebar-menu-link">
-                    <i class="fa fa-chart-pie"></i>
+                <a href="/emotion_statistics" class="sidebar-menu-link" aria-label="Emotion statistics" tabindex="0">
+                    <i class="fa fa-chart-pie" aria-hidden="true"></i>
                     <span>Emotion Statistics</span>
                 </a>
             </li>
             {% endif %}
             <li class="sidebar-menu-item">
-                <a href="/user_center" class="sidebar-menu-link">
-                    <i class="fa fa-user-circle"></i>
+                <a href="/user_center" class="sidebar-menu-link" aria-label="User center" tabindex="0">
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
                     <span>User Center</span>
                 </a>
             </li>
@@ -475,134 +853,177 @@
 
     <!-- 主内容区 -->
     <div class="content-area">
-        <div class="dashboard-header">
-            <h1>Session Management</h1>
-            <div>
-                {% if session.role == 'user' %}
-                <a href="/start_chat" class="btn btn-success">
-                    <i class="fa fa-plus me-1"></i> Create New Session
-                </a>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- 搜索和筛选区域 -->
+        <!-- 我的会话列表 -->
         <div class="section-card">
-            <div class="search-bar">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search by session ID or participant..."
-                           id="searchInput">
-                    <button class="btn btn-primary" id="searchBtn">
-                        <i class="fa fa-search"></i>
+            <h2><i class="fa fa-comments" aria-hidden="true"></i> Session Management</h2>
+
+            <!-- 操作按钮 -->
+            <!-- 操作按钮 + 搜索和筛选区域（同一行） -->
+            <div class="search-container mb-4">
+                <div class="filter-group" style="gap: 1rem; flex-wrap: wrap;">
+                                    <div class="search-bar" style="flex: 1; min-width: 250px;">
+                    <i class="fa fa-search search-icon" aria-hidden="true"></i>
+                    <input
+                        type="text"
+                        class="search-input"
+                        id="searchInput"
+                        placeholder="Search by ID, participant or message..."
+                        aria-label="Search sessions"
+                        tabindex="0"
+                    >
+                </div>
+                    <select class="form-select" id="statusFilter" aria-label="Filter by status" tabindex="0" style="max-width: 150px;">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="ended">Ended</option>
+                    </select>
+                    <select class="form-select" id="timeFilter" aria-label="Filter by time" tabindex="0" style="max-width: 150px;">
+                        <option value="">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="7days">Last 7 Days</option>
+                        <option value="30days">Last 30 Days</option>
+                    </select>
+                    {% if session.role in ['agent', 'admin'] %}
+                    <select class="form-select" id="agentFilter" aria-label="Filter by agent" tabindex="0" style="max-width: 180px;">
+                        <option value="">All Agents</option>
+                        {% for agent in agents %}
+                        <option value="{{ agent.id }}">{{ agent.username }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    <button class="btn btn-outline-primary" id="resetFilters" aria-label="Reset filters" tabindex="0">
+                        <i class="fa fa-refresh" aria-hidden="true"></i> Reset
                     </button>
+                    {% if session.role == 'user' %}
+                    <a href="/start_chat" class="btn btn-success" aria-label="Create new session" tabindex="0">
+                        <i class="fa fa-plus me-1" aria-hidden="true"></i> Create
+                    </a>
+                    {% endif %}
                 </div>
             </div>
 
-            <div class="filter-group">
-                <select class="form-select" id="statusFilter">
-                    <option value="">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="ended">Ended</option>
-                    <option value="pending">Pending</option>
-                </select>
+            <!-- 会话列表区域 -->
+            <div id="sessionListContainer">
+                <!-- 加载状态 -->
+                <div class="loading-overlay" id="loadingIndicator" style="display: none;">
+                    <div class="loading-spinner" aria-label="Loading sessions"></div>
+                </div>
 
-                <select class="form-select" id="timeFilter">
-                    <option value="">All Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                </select>
+                <!-- 空数据状态 -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fa fa-inbox" aria-hidden="true"></i>
+                    <h4>No sessions found</h4>
+                    <p>Try adjusting your search or filter criteria</p>
+                </div>
 
-                {% if session.role == 'admin' %}
-                <select class="form-select" id="agentFilter">
-                    <option value="">All Agents</option>
-                    {% for agent in agents %}
-                    <option value="{{ agent.id }}">{{ agent.username }}</option>
-                    {% endfor %}
-                </select>
-                {% endif %}
-            </div>
-        </div>
+                <!-- 错误状态 -->
+                <div class="error-state" id="errorState" style="display: none;">
+                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                    <h4>Error loading sessions</h4>
+                    <p>Please try again later or contact support</p>
+                    <button class="btn btn-outline-primary mt-2" id="retryButton" aria-label="Retry loading sessions" tabindex="0">
+                        <i class="fa fa-refresh" aria-hidden="true"></i> Retry
+                    </button>
+                </div>
 
-        <!-- 我的会话列表 -->
-        <div class="section-card">
-            <h2><i class="fa fa-comments"></i> My Sessions</h2>
-            <div class="table-responsive">
-                <table class="table table-hover" id="sessionTable">
-                    <thead>
-                    <tr>
-                        <th>Session ID</th>
-                        <th>Participant</th>
-                        <th>Start Time</th>
-                        <th>Last Message</th>
-                        <th>Emotion Tendency</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for sess in my_sessions %}
-                    <tr data-session-id="{{ sess.id }}"
-                        data-status="{{ 'active' if not sess.end_time else 'ended' }}"
-                        data-agent="{{ sess.agent.id if sess.agent else '' }}">
-                        <td>{{ sess.id }}</td>
-                        <td>
-                            {% if session.role == 'user' %}
-                            {{ sess.agent.username if sess.agent else 'System Assistant' }}
-                            {% else %}
-                            {{ sess.user.username }}
-                            {% endif %}
-                        </td>
-                        <td>{{ sess.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
-                        <td>
-                            {{ sess.last_message.text|truncate(20) if sess.last_message else 'No messages' }}
-                        </td>
-                        <td>
-                            {% if sess.average_sentiment %}
-                            {% if sess.average_sentiment > 0.5 %}
-                            <span class="text-success"><i class="fa fa-smile"></i> Positive</span>
-                            {% elif sess.average_sentiment < -0.5 %}
-                            <span class="text-danger"><i class="fa fa-frown"></i> Negative</span>
-                            {% else %}
-                            <span class="text-secondary"><i class="fa fa-meh"></i> Neutral</span>
-                            {% endif %}
-                            {% else %}
-                            -
-                            {% endif %}
-                        </td>
-                        <td>
-                                    <span class="status-badge {{ 'status-active' if not sess.end_time else 'status-ended' }}">
-                                        {{ 'Active' if not sess.end_time else 'Ended' }}
-                                    </span>
-                        </td>
-                        <td class="session-actions">
-                            <a href="/chat/{{ sess.id }}" class="btn btn-primary btn-sm">
-                                <i class="fa fa-pencil"></i> View
-                            </a>
-                            {% if not sess.end_time and session.role == 'agent' %}
-                            <button class="btn btn-danger btn-sm" onclick="endSession({{ sess.id }})">
-                                <i class="fa fa-times"></i> End
-                            </button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% if not my_sessions %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">No session records</td>
-                    </tr>
-                    {% endif %}
-                    </tbody>
-                </table>
+                <!-- 会话表格 -->
+                <div class="table-responsive" id="sessionTableContainer">
+                    <table class="table table-hover" id="sessionTable">
+                        <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>Participant</th>
+                            <th>Start Time</th>
+                            <th>Last Message</th>
+                            <th>Emotion Tendency</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sessionTableBody">
+                        {% for sess in my_sessions %}
+                        <tr data-session-id="{{ sess.id }}"
+                            data-status="{{ 'active' if not sess.end_time else 'ended' }}"
+                            data-agent="{{ sess.agent.id if sess.agent else '' }}"
+                            data-time="{{ sess.start_time.strftime('%Y-%m-%d') }}">
+                            <td>{{ sess.id }}</td>
+                            <td>
+                                {% if session.role == 'user' %}
+                                {{ sess.agent.username if sess.agent else 'System Assistant' }}
+                                {% else %}
+                                {{ sess.user.username }}
+                                {% endif %}
+                            </td>
+                            <td>{{ sess.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {{ sess.last_message.text|truncate(20) if sess.last_message else 'No messages' }}
+                            </td>
+                            <td>
+                                {% if sess.average_sentiment %}
+                                {% if sess.average_sentiment > 0.5 %}
+                                <span class="text-success"><i class="fa fa-smile" aria-hidden="true"></i> Positive</span>
+                                {% elif sess.average_sentiment < -0.5 %}
+                                <span class="text-danger"><i class="fa fa-frown" aria-hidden="true"></i> Negative</span>
+                                {% else %}
+                                <span class="text-secondary"><i class="fa fa-meh" aria-hidden="true"></i> Neutral</span>
+                                {% endif %}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge {{ 'status-active' if not sess.end_time else 'status-ended' }}">
+                                    {{ 'Active' if not sess.end_time else 'Ended' }}
+                                </span>
+                            </td>
+                            <td class="session-actions">
+                                <a href="/chat/{{ sess.id }}" class="btn btn-primary btn-sm"
+                                   aria-label="View session {{ sess.id }}" tabindex="0">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i> View
+                                </a>
+                                {% if not sess.end_time and session.role == 'agent' %}
+                                <button class="btn btn-danger btn-sm" onclick="endSession({{ sess.id }})"
+                                        aria-label="End session {{ sess.id }}" tabindex="0">
+                                    <i class="fa fa-times" aria-hidden="true"></i> End
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not my_sessions %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No session records</td>
+                        </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- 待处理会话（仅客服和管理员可见） -->
         {% if session.role in ['agent', 'admin'] %}
         <div class="section-card">
-            <h2><i class="fa fa-clock"></i> Pending Sessions</h2>
-            <div class="table-responsive">
-                <table class="table table-hover">
+            <h2><i class="fa fa-clock" aria-hidden="true"></i> Pending Sessions</h2>
+
+            <!-- 待处理会话搜索 -->
+            <div class="search-container mb-4">
+                <div class="search-bar">
+                    <i class="fa fa-search search-icon" aria-hidden="true"></i>
+                    <input
+                        type="text"
+                        class="search-input"
+                        id="pendingSearchInput"
+                        placeholder="Search pending sessions by ID or user..."
+                        aria-label="Search pending sessions"
+                        tabindex="0"
+                    >
+                </div>
+            </div>
+
+            <div class="table-responsive" id="pendingSessionTableContainer">
+                <table class="table table-hover" id="pendingSessionTable">
                     <thead>
                     <tr>
                         <th>Session ID</th>
@@ -613,25 +1034,26 @@
                         <th>Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="pendingSessionTableBody">
                     {% for sess in pending_sessions %}
-                    <tr>
+                    <tr data-session-id="{{ sess.id }}" data-user="{{ sess.user.username|lower }}">
                         <td>{{ sess.id }}</td>
                         <td>{{ sess.user.username }}</td>
                         <td>{{ sess.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
                         <td>{{ sess.first_message.text|truncate(20) if sess.first_message else 'No messages' }}</td>
                         <td>
                             {% if sess.first_message.sentiment > 0.5 %}
-                            <span class="text-success"><i class="fa fa-smile"></i> Positive</span>
+                            <span class="text-success"><i class="fa fa-smile" aria-hidden="true"></i> Positive</span>
                             {% elif sess.first_message.sentiment < -0.5 %}
-                            <span class="text-danger"><i class="fa fa-frown"></i> Negative</span>
+                            <span class="text-danger"><i class="fa fa-frown" aria-hidden="true"></i> Negative</span>
                             {% else %}
-                            <span class="text-secondary"><i class="fa fa-meh"></i> Neutral</span>
+                            <span class="text-secondary"><i class="fa fa-meh" aria-hidden="true"></i> Neutral</span>
                             {% endif %}
                         </td>
                         <td>
-                            <a href="/join_chat/{{ sess.id }}" class="btn btn-success btn-sm">
-                                <i class="fa fa-user-plus"></i> Take Over
+                            <a href="/join_chat/{{ sess.id }}" class="btn btn-success btn-sm"
+                               aria-label="Take over session {{ sess.id }}" tabindex="0">
+                                <i class="fa fa-user-plus" aria-hidden="true"></i> Take Over
                             </a>
                         </td>
                     </tr>
@@ -650,74 +1072,416 @@
 </div>
 
 <script>
-    // 移动端菜单切换
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mainNavLinks = document.getElementById('mainNavLinks');
+    document.addEventListener('DOMContentLoaded', function () {
+        // 全局状态管理
+        const state = {
+            originalSessions: Array.from(document.querySelectorAll('#sessionTableBody tr')),
+            originalPendingSessions: Array.from(document.querySelectorAll('#pendingSessionTableBody tr')),
+            isLoading: false,
+            apiBaseUrl: '/api/sessions' // 搜索接口基础URL
+        };
 
-    mobileMenuBtn.addEventListener('click', () => {
-        mainNavLinks.classList.toggle('show');
-    });
-
-    // 导航链接激活状态
-    const navLinks = document.querySelectorAll('.nav-link, .sidebar-menu-link');
-    navLinks.forEach(link => {
-        if (window.location.pathname.includes(link.getAttribute('href').replace('/', ''))) {
-            link.classList.add('active');
-        }
-
-        link.addEventListener('click', (e) => {
-            // 移除同级别所有链接的激活状态
-            const siblings = link.parentElement.parentElement.querySelectorAll('.active');
-            siblings.forEach(s => s.classList.remove('active'));
-            // 添加当前链接激活状态
-            link.classList.add('active');
-
-            // 移动端点击后关闭顶部菜单
-            if (window.innerWidth < 768 && link.closest('.nav-links')) {
-                mainNavLinks.classList.remove('show');
+        // 导航栏滚动效果
+        const mainNav = document.getElementById('mainNav');
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 10) {
+                mainNav.classList.add('scrolled');
+            } else {
+                mainNav.classList.remove('scrolled');
             }
         });
-    });
 
-    // 会话筛选功能实现
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        const timeFilter = document.getElementById('timeFilter');
-        const agentFilter = document.getElementById('agentFilter');
-        const sessionTable = document.getElementById('sessionTable');
-        const sessionRows = sessionTable.querySelectorAll('tbody tr');
+        // 移动端菜单切换
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
 
-        // 搜索功能
-        searchInput.addEventListener('input', filterSessions);
-        statusFilter.addEventListener('change', filterSessions);
-        timeFilter.addEventListener('change', filterSessions);
-        if (agentFilter) agentFilter.addEventListener('change', filterSessions);
+        mobileMenuBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('show');
+            const expanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+            mobileMenuBtn.setAttribute('aria-expanded', !expanded);
+            mobileMenuBtn.innerHTML = expanded ?
+                '<i class="fa fa-bars" aria-hidden="true"></i>' :
+                '<i class="fa fa-times" aria-hidden="true"></i>';
+        });
 
-        function filterSessions() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const status = statusFilter.value;
-            const time = timeFilter.value;
-            const agent = agentFilter ? agentFilter.value : '';
+        // 头像下拉菜单逻辑（统一交互）
+        const avatarDropdown = document.getElementById('avatarDropdown');
+        const dropdownMenu = document.getElementById('dropdownMenu');
 
-            sessionRows.forEach(row => {
+        // 点击头像切换下拉菜单
+        avatarDropdown.addEventListener('click', function (e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+            avatarDropdown.setAttribute('aria-expanded', dropdownMenu.classList.contains('show'));
+        });
+
+        // 点击页面其他区域关闭下拉菜单
+        document.addEventListener('click', function () {
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+                avatarDropdown.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // 阻止下拉菜单内部点击关闭
+        dropdownMenu.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+
+        // 键盘支持 - 头像下拉菜单
+        avatarDropdown.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                dropdownMenu.classList.toggle('show');
+                avatarDropdown.setAttribute('aria-expanded', dropdownMenu.classList.contains('show'));
+            }
+        });
+
+        // 导航链接激活状态
+        const navLinks = document.querySelectorAll('.sidebar-menu-link');
+        navLinks.forEach(link => {
+            if (window.location.pathname.includes(link.getAttribute('href').replace('/', ''))) {
+                link.classList.add('active');
+            }
+
+            link.addEventListener('click', (e) => {
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // 移动端点击后关闭菜单
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('show');
+                    mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                    mobileMenuBtn.innerHTML = '<i class="fa fa-bars" aria-hidden="true"></i>';
+                }
+            });
+
+            // 键盘支持 - 导航链接
+            link.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+
+        // ------------------------------
+        // 搜索接口集成 - 核心功能
+        // ------------------------------
+
+        // 显示/隐藏加载状态
+        function toggleLoading(show) {
+            state.isLoading = show;
+            document.getElementById('loadingIndicator').style.display = show ? 'flex' : 'none';
+            document.getElementById('sessionTableContainer').style.display = show ? 'none' : 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+        }
+
+        // 显示空数据状态
+        function showEmptyState() {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('sessionTableContainer').style.display = 'none';
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        // 显示错误状态
+        function showErrorState() {
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('sessionTableContainer').style.display = 'none';
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        // 构建搜索参数
+        function buildSearchParams() {
+            const params = new URLSearchParams();
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const status = document.getElementById('statusFilter').value;
+            const time = document.getElementById('timeFilter').value;
+            const agent = document.getElementById('agentFilter')?.value;
+
+            if (searchTerm) params.append('q', searchTerm);
+            if (status) params.append('status', status);
+            if (time) params.append('time_range', time);
+            if (agent) params.append('agent_id', agent);
+
+            // 添加用户角色筛选
+            params.append('role', '{{ session.role }}');
+            params.append('user_id', '{{ session.id }}');
+
+            return params;
+        }
+
+        // 调用搜索接口
+        async function searchSessions() {
+            if (state.isLoading) return;
+
+            toggleLoading(true);
+
+            try {
+                const params = buildSearchParams();
+                const response = await fetch(`${state.apiBaseUrl}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+
+                // 更新表格内容
+                updateSessionTable(data.sessions);
+
+                // 显示空状态如果没有数据
+                if (data.sessions.length === 0) {
+                    showEmptyState();
+                }
+
+            } catch (error) {
+                console.error('Error searching sessions:', error);
+                showErrorState();
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // 更新会话表格内容
+        function updateSessionTable(sessions) {
+            const tableBody = document.getElementById('sessionTableBody');
+            tableBody.innerHTML = '';
+
+            if (sessions.length === 0) {
+                return;
+            }
+
+            sessions.forEach(sess => {
+                const tr = document.createElement('tr');
+                tr.dataset.sessionId = sess.id;
+                tr.dataset.status = sess.end_time ? 'ended' : 'active';
+                tr.dataset.agent = sess.agent?.id || '';
+                tr.dataset.time = new Date(sess.start_time).toISOString().split('T')[0];
+
+                // 情感倾向
+                let sentimentHtml = '-';
+                if (sess.average_sentiment !== undefined) {
+                    if (sess.average_sentiment > 0.5) {
+                        sentimentHtml = '<span class="text-success"><i class="fa fa-smile" aria-hidden="true"></i> Positive</span>';
+                    } else if (sess.average_sentiment < -0.5) {
+                        sentimentHtml = '<span class="text-danger"><i class="fa fa-frown" aria-hidden="true"></i> Negative</span>';
+                    } else {
+                        sentimentHtml = '<span class="text-secondary"><i class="fa fa-meh" aria-hidden="true"></i> Neutral</span>';
+                    }
+                }
+
+                // 状态标签
+                const statusClass = sess.end_time ? 'status-ended' : 'status-active';
+                const statusText = sess.end_time ? 'Ended' : 'Active';
+
+                // 参与者
+                let participant = 'System Assistant';
+                {% if session.role == 'user' %}
+                participant = sess.agent?.username || 'System Assistant';
+                {% else %}
+                participant = sess.user?.username || 'Unknown User';
+                {% endif %}
+
+                // 最后消息
+                const lastMessage = sess.last_message?.text ?
+                    sess.last_message.text.substring(0, 20) + (sess.last_message.text.length > 20 ? '...' : '') :
+                    'No messages';
+
+                // 操作按钮
+                let actionsHtml = `<a href="/chat/${sess.id}" class="btn btn-primary btn-sm" aria-label="View session ${sess.id}" tabindex="0">
+                    <i class="fa fa-pencil" aria-hidden="true"></i> View
+                </a>`;
+
+                {% if session.role == 'agent' %}
+                if (!sess.end_time) {
+                    actionsHtml += `<button class="btn btn-danger btn-sm" onclick="endSession(${sess.id})"
+                        aria-label="End session ${sess.id}" tabindex="0">
+                        <i class="fa fa-times" aria-hidden="true"></i> End
+                    </button>`;
+                }
+                {% endif %}
+
+                // 格式化时间
+                const startTime = new Date(sess.start_time);
+                const formattedTime = `${startTime.getFullYear()}-${String(startTime.getMonth()+1).padStart(2, '0')}-${String(startTime.getDate()).padStart(2, '0')} ${String(startTime.getHours()).padStart(2, '0')}:${String(startTime.getMinutes()).padStart(2, '0')}`;
+
+                tr.innerHTML = `
+                    <td>${sess.id}</td>
+                    <td>${participant}</td>
+                    <td>${formattedTime}</td>
+                    <td>${lastMessage}</td>
+                    <td>${sentimentHtml}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td class="session-actions">${actionsHtml}</td>
+                `;
+
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // 客户端筛选（备用方案，当接口不可用时）
+        function filterSessionsClientSide() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const status = document.getElementById('statusFilter').value;
+            const time = document.getElementById('timeFilter').value;
+            const agent = document.getElementById('agentFilter')?.value;
+
+            // 时间范围处理
+            const getDateRange = (range) => {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                switch(range) {
+                    case 'today':
+                        return { start: today, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+                    case 'yesterday':
+                        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                        return { start: yesterday, end: today };
+                    case '7days':
+                        const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        return { start: sevenDaysAgo, end: new Date() };
+                    case '30days':
+                        const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        return { start: thirtyDaysAgo, end: new Date() };
+                    default:
+                        return { start: null, end: null };
+                }
+            };
+
+            const dateRange = getDateRange(time);
+            let emptyState = true;
+
+            state.originalSessions.forEach(row => {
                 const sessionId = row.dataset.sessionId;
                 const rowStatus = row.dataset.status;
                 const rowAgent = row.dataset.agent;
+                const rowTime = row.dataset.time;
                 const rowText = row.textContent.toLowerCase();
 
                 // 搜索匹配
-                const searchMatch = rowText.includes(searchTerm) || sessionId.includes(searchTerm);
+                const searchMatch = !searchTerm || rowText.includes(searchTerm) || sessionId.includes(searchTerm);
+
                 // 状态匹配
                 const statusMatch = !status || rowStatus === status;
+
                 // 客服匹配
                 const agentMatch = !agent || rowAgent === agent;
-                // 时间匹配（简化实现，实际项目需根据时间字段过滤）
-                const timeMatch = true; // 可扩展实现时间筛选逻辑
 
-                row.style.display = (searchMatch && statusMatch && agentMatch && timeMatch) ? '' : 'none';
+                // 时间匹配
+                let timeMatch = true;
+                if (dateRange.start && dateRange.end) {
+                    const rowDate = new Date(rowTime);
+                    timeMatch = rowDate >= dateRange.start && rowDate < dateRange.end;
+                }
+
+                // 显示/隐藏行
+                const shouldShow = searchMatch && statusMatch && agentMatch && timeMatch;
+                row.style.display = shouldShow ? '' : 'none';
+
+                if (shouldShow) emptyState = false;
+            });
+
+            // 显示空状态
+            document.getElementById('emptyState').style.display = emptyState ? 'block' : 'none';
+        }
+
+        // 待处理会话筛选
+        function filterPendingSessions() {
+            const searchTerm = document.getElementById('pendingSearchInput').value.toLowerCase().trim();
+
+            state.originalPendingSessions.forEach(row => {
+                const sessionId = row.dataset.sessionId;
+                const userName = row.dataset.user;
+                const rowText = row.textContent.toLowerCase();
+
+                const searchMatch = !searchTerm || rowText.includes(searchTerm) ||
+                                    sessionId.includes(searchTerm) || userName.includes(searchTerm);
+
+                row.style.display = searchMatch ? '' : 'none';
             });
         }
+
+        // 重置筛选器
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('timeFilter').value = '';
+            if (document.getElementById('agentFilter')) {
+                document.getElementById('agentFilter').value = '';
+            }
+
+            // 恢复原始表格数据
+            state.originalSessions.forEach(row => {
+                row.style.display = '';
+            });
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+        }
+
+        // ------------------------------
+        // 事件绑定
+        // ------------------------------
+
+        // 搜索框输入事件（防抖处理）
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                // 优先使用接口搜索，失败则回退到客户端筛选
+                if (window.fetch) {
+                    searchSessions();
+                } else {
+                    filterSessionsClientSide();
+                }
+            }, 300); // 300ms防抖
+        });
+
+        // 筛选器变更事件
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            if (window.fetch) {
+                searchSessions();
+            } else {
+                filterSessionsClientSide();
+            }
+        });
+
+        document.getElementById('timeFilter').addEventListener('change', function() {
+            if (window.fetch) {
+                searchSessions();
+            } else {
+                filterSessionsClientSide();
+            }
+        });
+
+        if (document.getElementById('agentFilter')) {
+            document.getElementById('agentFilter').addEventListener('change', function() {
+                if (window.fetch) {
+                    searchSessions();
+                } else {
+                    filterSessionsClientSide();
+                }
+            });
+        }
+
+        // 重置筛选器按钮
+        document.getElementById('resetFilters').addEventListener('click', resetFilters);
+
+        // 重试按钮
+        document.getElementById('retryButton')?.addEventListener('click', searchSessions);
+
+        // 待处理会话搜索
+        document.getElementById('pendingSearchInput')?.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterPendingSessions, 300);
+        });
 
         // 结束会话功能
         window.endSession = function (sessionId) {
@@ -725,6 +1489,27 @@
                 window.location.href = `/end_chat/${sessionId}`;
             }
         }
+
+        // 图片加载错误处理
+        const avatarImages = document.querySelectorAll('.avatar-img');
+        avatarImages.forEach(img => {
+            img.addEventListener('error', function () {
+                this.style.display = 'none';
+                const fallbackText = '{{ session.username[0].upper() }}';
+                this.parentElement.innerHTML = fallbackText;
+            });
+        });
+
+        // 所有交互元素的键盘支持
+        const interactiveElements = document.querySelectorAll('a, button, .btn, .dropdown-item');
+        interactiveElements.forEach(el => {
+            el.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
     });
 </script>
 </body>

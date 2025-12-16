@@ -89,9 +89,10 @@ def init_routes(app):
                     session['user_id'] = user.id
                     session['role'] = user.role
                     session['username'] = user.username
+                    session['avatar'] = user.avatar
                     session.permanent = True  # 设置session持久化（可选，默认浏览器关闭失效）
                     flash(f'Welcome back, {user.username}!')
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for('session_management'))
                 else:
                     # 用户名不存在或密码错误
                     flash('Invalid username or password!')
@@ -362,6 +363,68 @@ def init_routes(app):
             return redirect(url_for('login'))
         user = User.query.get(session['user_id'])
         return render_template('user_center.html', user=user)
+
+    @app.route('/edit-profile', methods=['GET', 'POST'])
+    def edit_profile():
+        # 验证用户登录状态
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+        # 获取当前用户信息
+        user = User.query.get(session['user_id'])
+        if not user:
+            flash('User not found', 'error')
+            return redirect(url_for('dashboard'))
+
+        if request.method == 'POST':
+            try:
+                # 获取表单数据
+                real_name = request.form.get('real_name', '').strip()
+                email = request.form.get('email', '').strip()
+                phone = request.form.get('phone', '').strip()
+                avatar_url = request.form.get('avatar_url', '').strip()
+
+                # 验证邮箱唯一性（如果填写了邮箱）
+                if email:
+                    existing_email = User.query.filter(
+                        User.email == email,
+                        User.id != user.id
+                    ).first()
+                    if existing_email:
+                        flash('Email already in use', 'error')
+                        return render_template('edit_profile.html', user=user)
+
+                # 验证手机号唯一性（如果填写了手机号）
+                if phone:
+                    existing_phone = User.query.filter(
+                        User.phone == phone,
+                        User.id != user.id
+                    ).first()
+                    if existing_phone:
+                        flash('Phone number already in use', 'error')
+                        return render_template('edit_profile.html', user=user)
+
+                # 更新用户信息
+                user.real_name = real_name if real_name else None
+                user.email = email if email else None
+                user.phone = phone if phone else None
+                user.updated_at = datetime.now()  # 更新时间戳
+                if avatar_url:  # 只有上传了新头像才更新
+                    user.avatar = avatar_url
+
+                db.session.commit()
+                flash('Profile updated successfully', 'success')
+                return redirect(url_for('user_center'))
+
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Update failed: {str(e)}', 'error')
+                return render_template('edit_profile.html', user=user)
+        else:
+            flash("")
+
+        # GET 请求：渲染编辑页面
+        return render_template('edit_profile.html', user=user)
 
     @app.route('/book_appointment', methods=['POST'])
     def book_appointment():
