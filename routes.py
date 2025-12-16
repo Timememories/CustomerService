@@ -229,15 +229,38 @@ def init_routes(app):
         session.clear()
         return redirect(url_for('index'))
 
+    @app.route('/chat_sessions')
+    def chat_sessions():
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+        role = session['role']
+        user_id = session['user_id']
+
+        # 根据角色筛选会话
+        if role == 'user':
+            # 用户只能查看自己发起的会话
+            sessions = ChatSession.query.filter_by(user_id=user_id).all()
+        elif role == 'agent':
+            # 客服查看自己处理的会话 + 未分配的会话
+            sessions = ChatSession.query.filter(
+                (ChatSession.agent_id == user_id) |
+                (ChatSession.agent_id.is_(None))
+            ).all()
+        else:  # admin
+            # 管理员查看所有会话
+            sessions = ChatSession.query.all()
+
+        return render_template('chat_sessions.html', sessions=sessions)
+
     @app.route('/dashboard')
     def dashboard():
         if 'user_id' not in session:
             return redirect(url_for('login'))
         role = session['role']
         if role == 'user':
-            appointments = Appointment.query.filter_by(user_id=session['user_id']).all()
-            services = Service.query.all()
-            return render_template('user_dashboard.html', appointments=appointments, services=services)
+            services = ChatSession.query.filter_by(user_id=session['user_id']).all()
+            return render_template('chat_sessions.html', services=services)
         elif role == 'agent':
             sessions = ChatSession.query \
                 .filter(ChatSession.agent_id.is_(None)) \
@@ -249,6 +272,96 @@ def init_routes(app):
             services = Service.query.all()
             sessions = ChatSession.query.all()
             return render_template('admin_dashboard.html', users=users, services=services, sessions=sessions)
+
+    @app.route('/session_management')
+    def session_management():
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+        role = session['role']
+        user_id = session['user_id']
+
+        # 不同角色看到的会话不同
+        if role == 'user':
+            # 用户只能看到自己的会话
+            my_sessions = ChatSession.query.filter_by(user_id=user_id).all()
+            pending_sessions = []
+            agents = []
+        elif role == 'agent':
+            # 客服看到自己处理的会话和待处理会话
+            my_sessions = ChatSession.query.filter_by(agent_id=user_id).all()
+            pending_sessions = ChatSession.query.filter(
+                ChatSession.agent_id.is_(None),
+                ChatSession.end_time.is_(None)
+            ).all()
+            agents = []
+        elif role == 'admin':
+            # 管理员看到所有会话
+            my_sessions = ChatSession.query.all()
+            pending_sessions = ChatSession.query.filter(
+                ChatSession.agent_id.is_(None),
+                ChatSession.end_time.is_(None)
+            ).all()
+            agents = User.query.filter_by(role='agent').all()
+
+        # 为每个会话添加额外信息（最后一条消息、平均情绪等）
+        for sess in my_sessions + pending_sessions:
+            # 获取最后一条消息
+            last_msg = Message.query.filter_by(session_id=sess.id).order_by(Message.timestamp.desc()).first()
+            sess.last_message = last_msg
+
+            # 获取第一条消息（用于待处理会话）
+            first_msg = Message.query.filter_by(session_id=sess.id).order_by(Message.timestamp).first()
+            sess.first_message = first_msg
+
+            # 计算平均情绪
+            all_msgs = Message.query.filter_by(session_id=sess.id).all()
+            if all_msgs:
+                sentiment_sum = sum(msg.sentiment for msg in all_msgs)
+                sess.average_sentiment = sentiment_sum / len(all_msgs)
+            else:
+                sess.average_sentiment = 0
+
+        return render_template(
+            'session_management.html',
+            my_sessions=my_sessions,
+            pending_sessions=pending_sessions,
+            agents=agents
+        )
+
+    @app.route('/end_chat/<int:session_id>')
+    def end_chat(session_id):
+        if 'user_id' not in session or session['role'] not in ['agent', 'admin']:
+            return redirect(url_for('login'))
+
+        chat_session = ChatSession.query.get(session_id)
+        if chat_session and (session['role'] == 'admin' or chat_session.agent_id == session['user_id']):
+            chat_session.end_time = datetime.now()
+            db.session.commit()
+            flash('会话已结束', 'success')
+
+        return redirect(url_for('session_management'))
+
+    @app.route('/friends')
+    def friends():
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        # 实际项目中应查询用户好友列表
+        return render_template('friends.html')
+
+    @app.route('/system_analysis')
+    def system_analysis():
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        # 实际项目中应传入分析数据
+        return render_template('system_analysis.html')
+
+    @app.route('/user_center')
+    def user_center():
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        user = User.query.get(session['user_id'])
+        return render_template('user_center.html', user=user)
 
     @app.route('/book_appointment', methods=['POST'])
     def book_appointment():

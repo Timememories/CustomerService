@@ -149,7 +149,8 @@ class Service(db.Model):
     duration = db.Column(db.Integer, default=30, comment='服务时长（分钟）')
     price = db.Column(db.Float, default=0.0, comment='服务价格（元）')
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), comment='创建时间')
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC), comment='更新时间')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC),
+                           comment='更新时间')
 
     # 关联关系：双向匹配，无重复 backref
     chat_sessions = db.relationship(
@@ -203,7 +204,8 @@ class Appointment(db.Model):
     rating = db.Column(db.Integer, nullable=True, comment='评分（1-5分）')
     remark = db.Column(db.Text, nullable=True, comment='预约备注')
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), comment='创建时间')
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC), comment='更新时间')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC),
+                           comment='更新时间')
 
     # 关联关系：双向匹配，无重复
     applicant = db.relationship('User', foreign_keys=[user_id], back_populates='applied_appointments', lazy=True)
@@ -276,7 +278,6 @@ class ChatSession(db.Model):
     service = db.relationship('Service', back_populates='chat_sessions', lazy=True)
     appointment = db.relationship('Appointment', back_populates='chat_session', lazy=True)
     messages = db.relationship('Message', backref='chat_session', lazy=True, cascade='all, delete-orphan')
-
 
     def close_session(self) -> None:
         """结束会话"""
