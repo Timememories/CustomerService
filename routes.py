@@ -1,5 +1,7 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
-from models import db, User, Service, Appointment, ChatSession, Message
+
+from bot import analyze_sentiment, generate_bot_response
+from models import db, User, Service, Appointment, ChatSession, Message, FriendRelation
 from datetime import datetime
 
 
@@ -7,8 +9,48 @@ def init_routes(app):
     @app.route('/')
     def index():
         if 'user_id' in session:
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('session_management'))
         return render_template('index.html')
+
+    from flask import request, jsonify  # 确保导入这些模块
+
+    # 在现有路由初始化后添加
+    @app.route('/api/analyze-emotion', methods=['POST'])
+    def analyze_emotion():
+        data = request.get_json()
+        text = data.get('text', '')
+
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+
+        # 调用现有情感分析功能
+        sentiment = analyze_sentiment(text)
+
+        # 生成情感标签
+        if sentiment > 0.6:
+            emotion = "Joy"
+            intensity = f"{int(sentiment * 100)}%"
+        elif sentiment > 0.2:
+            emotion = "Contentment"
+            intensity = f"{int(sentiment * 100)}%"
+        elif sentiment > -0.2:
+            emotion = "Neutral"
+            intensity = "50%"
+        elif sentiment > -0.6:
+            emotion = "Discontent"
+            intensity = f"{int((1 + sentiment) * 50)}%"
+        else:
+            emotion = "Distress"
+            intensity = f"{int((1 + sentiment) * 50)}%"
+
+        # 生成AI回应
+        response = generate_bot_response(text, sentiment)
+
+        return jsonify({
+            'emotion': emotion,
+            'intensity': intensity,
+            'response': response
+        })
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
@@ -202,7 +244,7 @@ def init_routes(app):
 
             # 4. 更新密码（使用User模型的set_password方法，若无则直接加密）
             # 方式1：如果User模型有set_password方法（推荐）
-            user.set_password(new_password)
+            a = user.set_password(new_password)
 
             # 方式2：如果无set_password方法，手动加密
             # user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
@@ -219,6 +261,11 @@ def init_routes(app):
         except Exception as e:
             # 异常处理
             db.session.rollback()
+            if isinstance(e, ValueError):
+                return jsonify({
+                    'success': False,
+                    'message': f"Reset password error: {str(e)}"
+                }), 500
             print(f"Reset password error: {str(e)}")
             return jsonify({
                 'success': False,
@@ -506,3 +553,98 @@ def init_routes(app):
             db.session.commit()
             flash('User deleted')
         return redirect(url_for('dashboard'))
+
+    # 好友管理首页（展示页面）
+    @app.route('/friends_management')
+    def friends_management():
+        if 'user_id' not in session:
+            return redirect('/login')
+        return render_template('friends_management.html')
+
+    # 获取好友列表（API）
+    @app.route('/friends_management', methods=['GET'])
+    def get_friends():
+        if 'user_id' not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
+
+        user_id = session['user_id']
+        # 查询当前用户的好友关系（假设FriendRelation表存储双向关系）
+        friends = db.session.query(
+            User.id, User.username, User.real_name, User.last_login_at, User.status
+        ).join(
+            FriendRelation,
+            db.or_(
+                (FriendRelation.user_id == user_id) & (FriendRelation.friend_id == User.id),
+                (FriendRelation.friend_id == user_id) & (FriendRelation.user_id == User.id)
+            )
+        ).filter(FriendRelation.status == 'accepted').all()
+
+        friend_list = [
+            {
+                "user_id": f.id,
+                "username": f.username,
+                "real_name": f.real_name,
+                "last_login": f.last_login_at.strftime('%Y-%m-%d %H:%M:%S') if f.last_login_at else "Never",
+                "status": f.status
+            } for f in friends
+        ]
+        return jsonify({"success": True, "friends": friend_list})
+
+    # 添加好友（API）
+    @app.route('/friends_management/add', methods=['POST'])
+    def add_friend():
+        if 'user_id' not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
+
+        data = request.json
+        target_username = data.get('target_username')
+        if not target_username:
+            return jsonify({"success": False, "error": "Username is required"}), 400
+
+        target_user = User.query.filter_by(username=target_username).first()
+        if not target_user:
+            return jsonify({"success": False, "error": f"User '{target_username}' does not exist"}), 404
+
+        user_id = session['user_id']
+        if target_user.id == user_id:
+            return jsonify({"success": False, "error": "Cannot add yourself as friend"}), 400
+
+        # 检查是否已为好友
+        existing = FriendRelation.query.filter(
+            (FriendRelation.user_id == user_id) & (FriendRelation.friend_id == target_user.id)
+        ).first()
+        if existing:
+            return jsonify({"success": False, "error": "Already friends"}), 400
+
+        # 创建好友请求（状态为pending）
+        new_relation = FriendRelation(
+            user_id=user_id,
+            friend_id=target_user.id,
+            status='pending'
+        )
+        db.session.add(new_relation)
+        db.session.commit()
+
+        return jsonify({"success": True, "message": f"Friend request sent to {target_username}"})
+
+    # 删除好友（API）
+    @app.route('/friends_management/delete', methods=['POST'])
+    def delete_friend():
+        if 'user_id' not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
+
+        friend_id = request.json.get('friend_id')
+        if not friend_id:
+            return jsonify({"success": False, "error": "Friend ID is required"}), 400
+
+        user_id = session['user_id']
+        # 删除双向关系记录
+        FriendRelation.query.filter(
+            db.or_(
+                (FriendRelation.user_id == user_id) & (FriendRelation.friend_id == friend_id),
+                (FriendRelation.user_id == friend_id) & (FriendRelation.friend_id == user_id)
+            )
+        ).delete()
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "Friend removed successfully"})

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session Management | Emotion Pal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,11 +32,11 @@
             --bg-secondary: #F8FAFC;
             --bg-tertiary: #E2E8F0;
 
+
             /* 阴影 */
-            --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-            --nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
             --shadow-hover: 0 4px 12px rgba(159, 122, 234, 0.3);
-            --loading-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+            --nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 
             /* 侧边栏样式 */
             --sidebar-bg: #ffffff;
@@ -78,10 +78,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 1.5rem;
+            width: 400%;
         }
 
         .brand {
@@ -124,8 +121,11 @@
 
         .user-info {
             text-align: right;
-            display: none;
-            @media (min-width: 768px) {
+            /*display: none;*/
+        }
+
+        @media (min-width: 768px) {
+            .user-info {
                 display: block;
             }
         }
@@ -238,14 +238,17 @@
 
         /* 移动端菜单按钮 */
         .mobile-menu-btn {
-            display: none;
             background: none;
             border: none;
             color: var(--text-dark);
             font-size: 1.25rem;
             cursor: pointer;
             padding: 0.25rem 0.5rem;
-            @media (max-width: 768px) {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
                 display: block;
             }
         }
@@ -366,13 +369,7 @@
             flex: 1;
         }
 
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-        }
+
 
         .dashboard-header h1 {
             font-weight: 600;
@@ -490,24 +487,10 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .status-active {
-            background-color: rgba(46, 204, 113, 0.15);
-            color: var(--success);
-        }
-
-        .status-ended {
-            background-color: rgba(156, 163, 175, 0.15);
-            color: var(--text-muted);
-        }
-
-        .status-pending {
-            background-color: rgba(245, 158, 11, 0.15);
-            color: #d97706;
-        }
 
         /* 搜索区域样式优化 */
         .search-container {
-            display: flex;
+            /*display: flex;*/
             gap: 1rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
@@ -689,10 +672,7 @@
                 left: -80px;
             }
 
-            .search-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
+
         }
 
         @media (max-width: 576px) {
@@ -857,21 +837,20 @@
         <div class="section-card">
             <h2><i class="fa fa-comments" aria-hidden="true"></i> Session Management</h2>
 
-            <!-- 操作按钮 -->
             <!-- 操作按钮 + 搜索和筛选区域（同一行） -->
-            <div class="search-container mb-4">
+            <div class="search-container">
                 <div class="filter-group" style="gap: 1rem; flex-wrap: wrap;">
-                                    <div class="search-bar" style="flex: 1; min-width: 250px;">
-                    <i class="fa fa-search search-icon" aria-hidden="true"></i>
-                    <input
-                        type="text"
-                        class="search-input"
-                        id="searchInput"
-                        placeholder="Search by ID, participant or message..."
-                        aria-label="Search sessions"
-                        tabindex="0"
-                    >
-                </div>
+                    <div class="search-bar" style="flex: 1; min-width: 250px;">
+                        <i class="fa fa-search search-icon" aria-hidden="true"></i>
+                        <input
+                            type="text"
+                            class="search-input"
+                            id="searchInput"
+                            placeholder="Search by ID, participant or message..."
+                            aria-label="Search sessions"
+                            tabindex="0"
+                        >
+                    </div>
                     <select class="form-select" id="statusFilter" aria-label="Filter by status" tabindex="0" style="max-width: 150px;">
                         <option value="">All Status</option>
                         <option value="active">Active</option>
@@ -1072,11 +1051,28 @@
 </div>
 
 <script>
+    // 修复ES6兼容 - padStart polyfill
+    if (!String.prototype.padStart) {
+        String.prototype.padStart = function padStart(targetLength, padString) {
+            targetLength = targetLength >> 0;
+            padString = String(typeof padString !== 'undefined' ? padString : ' ');
+            if (this.length >= targetLength) {
+                return String(this);
+            } else {
+                targetLength = targetLength - this.length;
+                if (targetLength > padString.length) {
+                    padString += padString.repeat(targetLength / padString.length);
+                }
+                return padString.slice(0, targetLength) + String(this);
+            }
+        };
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // 全局状态管理
         const state = {
             originalSessions: Array.from(document.querySelectorAll('#sessionTableBody tr')),
-            originalPendingSessions: Array.from(document.querySelectorAll('#pendingSessionTableBody tr')),
+            originalPendingSessions: Array.from(document.querySelectorAll('#pendingSessionTableBody tr') || []),
             isLoading: false,
             apiBaseUrl: '/api/sessions' // 搜索接口基础URL
         };
@@ -1095,47 +1091,51 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.querySelector('.sidebar');
 
-        mobileMenuBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('show');
-            const expanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
-            mobileMenuBtn.setAttribute('aria-expanded', !expanded);
-            mobileMenuBtn.innerHTML = expanded ?
-                '<i class="fa fa-bars" aria-hidden="true"></i>' :
-                '<i class="fa fa-times" aria-hidden="true"></i>';
-        });
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('show');
+                const expanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+                mobileMenuBtn.setAttribute('aria-expanded', !expanded);
+                mobileMenuBtn.innerHTML = expanded ?
+                    '<i class="fa fa-bars" aria-hidden="true"></i>' :
+                    '<i class="fa fa-times" aria-hidden="true"></i>';
+            });
+        }
 
         // 头像下拉菜单逻辑（统一交互）
         const avatarDropdown = document.getElementById('avatarDropdown');
         const dropdownMenu = document.getElementById('dropdownMenu');
 
-        // 点击头像切换下拉菜单
-        avatarDropdown.addEventListener('click', function (e) {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('show');
-            avatarDropdown.setAttribute('aria-expanded', dropdownMenu.classList.contains('show'));
-        });
-
-        // 点击页面其他区域关闭下拉菜单
-        document.addEventListener('click', function () {
-            if (dropdownMenu.classList.contains('show')) {
-                dropdownMenu.classList.remove('show');
-                avatarDropdown.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // 阻止下拉菜单内部点击关闭
-        dropdownMenu.addEventListener('click', function (e) {
-            e.stopPropagation();
-        });
-
-        // 键盘支持 - 头像下拉菜单
-        avatarDropdown.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
+        if (avatarDropdown && dropdownMenu) {
+            // 点击头像切换下拉菜单
+            avatarDropdown.addEventListener('click', function (e) {
+                e.stopPropagation();
                 dropdownMenu.classList.toggle('show');
                 avatarDropdown.setAttribute('aria-expanded', dropdownMenu.classList.contains('show'));
-            }
-        });
+            });
+
+            // 点击页面其他区域关闭下拉菜单
+            document.addEventListener('click', function () {
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                    avatarDropdown.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // 阻止下拉菜单内部点击关闭
+            dropdownMenu.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+
+            // 键盘支持 - 头像下拉菜单
+            avatarDropdown.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    dropdownMenu.classList.toggle('show');
+                    avatarDropdown.setAttribute('aria-expanded', dropdownMenu.classList.contains('show'));
+                }
+            });
+        }
 
         // 导航链接激活状态
         const navLinks = document.querySelectorAll('.sidebar-menu-link');
@@ -1149,10 +1149,12 @@
                 link.classList.add('active');
 
                 // 移动端点击后关闭菜单
-                if (window.innerWidth < 768) {
+                if (window.innerWidth < 768 && sidebar) {
                     sidebar.classList.remove('show');
-                    mobileMenuBtn.setAttribute('aria-expanded', 'false');
-                    mobileMenuBtn.innerHTML = '<i class="fa fa-bars" aria-hidden="true"></i>';
+                    if (mobileMenuBtn) {
+                        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                        mobileMenuBtn.innerHTML = '<i class="fa fa-bars" aria-hidden="true"></i>';
+                    }
                 }
             });
 
@@ -1172,40 +1174,58 @@
         // 显示/隐藏加载状态
         function toggleLoading(show) {
             state.isLoading = show;
-            document.getElementById('loadingIndicator').style.display = show ? 'flex' : 'none';
-            document.getElementById('sessionTableContainer').style.display = show ? 'none' : 'block';
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('errorState').style.display = 'none';
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const sessionTableContainer = document.getElementById('sessionTableContainer');
+            const emptyState = document.getElementById('emptyState');
+            const errorState = document.getElementById('errorState');
+
+            if (loadingIndicator) loadingIndicator.style.display = show ? 'flex' : 'none';
+            if (sessionTableContainer) sessionTableContainer.style.display = show ? 'none' : 'block';
+            if (emptyState) emptyState.style.display = 'none';
+            if (errorState) errorState.style.display = 'none';
         }
 
         // 显示空数据状态
         function showEmptyState() {
-            document.getElementById('emptyState').style.display = 'block';
-            document.getElementById('sessionTableContainer').style.display = 'none';
-            document.getElementById('loadingIndicator').style.display = 'none';
+            const emptyState = document.getElementById('emptyState');
+            const sessionTableContainer = document.getElementById('sessionTableContainer');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            if (emptyState) emptyState.style.display = 'block';
+            if (sessionTableContainer) sessionTableContainer.style.display = 'none';
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
         }
 
         // 显示错误状态
         function showErrorState() {
-            document.getElementById('errorState').style.display = 'block';
-            document.getElementById('sessionTableContainer').style.display = 'none';
-            document.getElementById('loadingIndicator').style.display = 'none';
+            const errorState = document.getElementById('errorState');
+            const sessionTableContainer = document.getElementById('sessionTableContainer');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            if (errorState) errorState.style.display = 'block';
+            if (sessionTableContainer) sessionTableContainer.style.display = 'none';
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
         }
 
         // 构建搜索参数
         function buildSearchParams() {
             const params = new URLSearchParams();
-            const searchTerm = document.getElementById('searchInput').value.trim();
-            const status = document.getElementById('statusFilter').value;
-            const time = document.getElementById('timeFilter').value;
-            const agent = document.getElementById('agentFilter')?.value;
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const timeFilter = document.getElementById('timeFilter');
+            const agentFilter = document.getElementById('agentFilter');
+
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const status = statusFilter ? statusFilter.value : '';
+            const time = timeFilter ? timeFilter.value : '';
+            const agent = agentFilter ? agentFilter.value : '';
 
             if (searchTerm) params.append('q', searchTerm);
             if (status) params.append('status', status);
             if (time) params.append('time_range', time);
             if (agent) params.append('agent_id', agent);
 
-            // 添加用户角色筛选
+            // 添加用户角色筛选（从模板变量获取）
             params.append('role', '{{ session.role }}');
             params.append('user_id', '{{ session.id }}');
 
@@ -1252,6 +1272,8 @@
         // 更新会话表格内容
         function updateSessionTable(sessions) {
             const tableBody = document.getElementById('sessionTableBody');
+            if (!tableBody) return;
+
             tableBody.innerHTML = '';
 
             if (sessions.length === 0) {
@@ -1328,10 +1350,15 @@
 
         // 客户端筛选（备用方案，当接口不可用时）
         function filterSessionsClientSide() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-            const status = document.getElementById('statusFilter').value;
-            const time = document.getElementById('timeFilter').value;
-            const agent = document.getElementById('agentFilter')?.value;
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const timeFilter = document.getElementById('timeFilter');
+            const agentFilter = document.getElementById('agentFilter');
+
+            const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const status = statusFilter ? statusFilter.value : '';
+            const time = timeFilter ? timeFilter.value : '';
+            const agent = agentFilter ? agentFilter.value : '';
 
             // 时间范围处理
             const getDateRange = (range) => {
@@ -1389,12 +1416,18 @@
             });
 
             // 显示空状态
-            document.getElementById('emptyState').style.display = emptyState ? 'block' : 'none';
+            const emptyStateEl = document.getElementById('emptyState');
+            if (emptyStateEl) {
+                emptyStateEl.style.display = emptyState ? 'block' : 'none';
+            }
         }
 
         // 待处理会话筛选
         function filterPendingSessions() {
-            const searchTerm = document.getElementById('pendingSearchInput').value.toLowerCase().trim();
+            const pendingSearchInput = document.getElementById('pendingSearchInput');
+            if (!pendingSearchInput) return;
+
+            const searchTerm = pendingSearchInput.value.toLowerCase().trim();
 
             state.originalPendingSessions.forEach(row => {
                 const sessionId = row.dataset.sessionId;
@@ -1410,20 +1443,25 @@
 
         // 重置筛选器
         function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('timeFilter').value = '';
-            if (document.getElementById('agentFilter')) {
-                document.getElementById('agentFilter').value = '';
-            }
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const timeFilter = document.getElementById('timeFilter');
+            const agentFilter = document.getElementById('agentFilter');
+            const emptyStateEl = document.getElementById('emptyState');
+            const errorStateEl = document.getElementById('errorState');
+
+            if (searchInput) searchInput.value = '';
+            if (statusFilter) statusFilter.value = '';
+            if (timeFilter) timeFilter.value = '';
+            if (agentFilter) agentFilter.value = '';
 
             // 恢复原始表格数据
             state.originalSessions.forEach(row => {
                 row.style.display = '';
             });
 
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('errorState').style.display = 'none';
+            if (emptyStateEl) emptyStateEl.style.display = 'none';
+            if (errorStateEl) errorStateEl.style.display = 'none';
         }
 
         // ------------------------------
@@ -1432,37 +1470,47 @@
 
         // 搜索框输入事件（防抖处理）
         let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                // 优先使用接口搜索，失败则回退到客户端筛选
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    // 优先使用接口搜索，失败则回退到客户端筛选
+                    if (window.fetch) {
+                        searchSessions();
+                    } else {
+                        filterSessionsClientSide();
+                    }
+                }, 300); // 300ms防抖
+            });
+        }
+
+        // 筛选器变更事件
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function() {
                 if (window.fetch) {
                     searchSessions();
                 } else {
                     filterSessionsClientSide();
                 }
-            }, 300); // 300ms防抖
-        });
+            });
+        }
 
-        // 筛选器变更事件
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            if (window.fetch) {
-                searchSessions();
-            } else {
-                filterSessionsClientSide();
-            }
-        });
+        const timeFilter = document.getElementById('timeFilter');
+        if (timeFilter) {
+            timeFilter.addEventListener('change', function() {
+                if (window.fetch) {
+                    searchSessions();
+                } else {
+                    filterSessionsClientSide();
+                }
+            });
+        }
 
-        document.getElementById('timeFilter').addEventListener('change', function() {
-            if (window.fetch) {
-                searchSessions();
-            } else {
-                filterSessionsClientSide();
-            }
-        });
-
-        if (document.getElementById('agentFilter')) {
-            document.getElementById('agentFilter').addEventListener('change', function() {
+        const agentFilter = document.getElementById('agentFilter');
+        if (agentFilter) {
+            agentFilter.addEventListener('change', function() {
                 if (window.fetch) {
                     searchSessions();
                 } else {
@@ -1472,23 +1520,32 @@
         }
 
         // 重置筛选器按钮
-        document.getElementById('resetFilters').addEventListener('click', resetFilters);
+        const resetFiltersBtn = document.getElementById('resetFilters');
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', resetFilters);
+        }
 
         // 重试按钮
-        document.getElementById('retryButton')?.addEventListener('click', searchSessions);
+        const retryButton = document.getElementById('retryButton');
+        if (retryButton) {
+            retryButton.addEventListener('click', searchSessions);
+        }
 
         // 待处理会话搜索
-        document.getElementById('pendingSearchInput')?.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(filterPendingSessions, 300);
-        });
+        const pendingSearchInput = document.getElementById('pendingSearchInput');
+        if (pendingSearchInput) {
+            pendingSearchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(filterPendingSessions, 300);
+            });
+        }
 
         // 结束会话功能
         window.endSession = function (sessionId) {
             if (confirm(`Are you sure to end session #${sessionId}?`)) {
                 window.location.href = `/end_chat/${sessionId}`;
             }
-        }
+        };
 
         // 图片加载错误处理
         const avatarImages = document.querySelectorAll('.avatar-img');

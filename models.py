@@ -91,13 +91,13 @@ class User(db.Model):
     def _validate_password_strength(self, password: str) -> None:
         """密码强度验证（自定义规则）"""
         if len(password) < 8:
-            raise ValueError("密码长度不能少于8位")
+            raise ValueError("Password must be at least 8 characters long")
         if not re.search(r'[A-Z]', password):
-            raise ValueError("密码必须包含至少一个大写字母")
+            raise ValueError("Password must contain at least one uppercase letter")
         if not re.search(r'[a-z]', password):
-            raise ValueError("密码必须包含至少一个小写字母")
+            raise ValueError("Password must contain at least one lowercase letter")
         if not re.search(r'[0-9]', password):
-            raise ValueError("密码必须包含至少一个数字")
+            raise ValueError("Password must contain at least one numeric digit")
 
     def update_last_login(self) -> None:
         """更新最后登录时间"""
@@ -359,3 +359,11 @@ class Message(db.Model):
 
     def __repr__(self) -> str:
         return f"<Message(id={self.id}, session_id={self.session_id}, is_read={self.is_read})>"
+
+
+class FriendRelation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    friend_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(20), default='pending')  # pending/accepted/rejected
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

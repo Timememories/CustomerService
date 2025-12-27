@@ -58,4 +58,4 @@ if __name__ == '__main__':
         db.create_all()
         pass
     # socketio.run(app, debug=True)
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True,port=5001)

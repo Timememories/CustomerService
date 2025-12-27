@@ -1,8 +1,9 @@
-from textblob import TextBlob
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import re
 from ollama import Client
-
+from deep_translator import GoogleTranslator
+from textblob.exceptions import TranslatorError
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from langdetect import detect, LangDetectException  # 替代TextBlob的语言检测
 analyzer = SentimentIntensityAnalyzer()
 
 client = Client(
@@ -16,13 +17,36 @@ def clean_text(text):
 
 
 def analyze_sentiment(text):
+    """
+    分析文本情感，返回VADER的compound得分（-1~1）
+    逻辑：俄语→翻译为英语→情感分析，异常时使用原文本
+    """
+    # 边界处理：空文本/非字符串返回中性（0.0）
+    if not isinstance(text, str) or text.strip() == "":
+        return 0.0
+
+    processed_text = text
     try:
-        blob = TextBlob(text)
-        if blob.detect_language() == 'ru':
-            text = str(blob.translate(to='en'))
-    except:
-        pass
-    scores = analyzer.polarity_scores(text)
+        # 步骤1：用langdetect检测语言（替代TextBlob的detect_language）
+        detected_lang = detect(text)
+        if detected_lang in ['ru', 'bg']:
+            # 使用deep-translator翻译（稳定且不易限流）
+            processed_text = GoogleTranslator(
+                source=detected_lang,  # 源语言（ru=俄语，bg=保加利亚语）
+                target='en'            # 目标语言：英语
+            ).translate(text)
+    except LangDetectException:
+        # 语言检测失败：使用原文本
+        print(f"警告：无法检测文本语言（文本片段：{text[:50]}...）")
+    except TranslatorError:
+        # 翻译失败：使用原文本
+        print(f"警告：俄语翻译失败（文本片段：{text[:50]}...）")
+    except Exception as e:
+        # 其他意外异常：记录并使用原文本
+        print(f"文本处理异常：{str(e)}（文本片段：{text[:50]}...）")
+
+    # 步骤3：情感分析并返回compound得分
+    scores = analyzer.polarity_scores(processed_text)
     return scores['compound']
 
 

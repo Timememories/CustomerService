@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend Management - Emotion Pal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 升级到 Font Awesome 6 版本以支持所有图标 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#E8F4F8',
+                        secondary: '#FDF2F8',
+                        accent: '#9F7AEA',
+                        text: '#4A5568',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .shadow-soft { box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05); }
+            .transition-all-300 { transition: all 0.3s ease; }
+            .emotion-indicator { width: 8px; height: 8px; border-radius: 50%; }
+        }
+    </style>
+    <style>
+        :root {
+            --accent: #9F7AEA;
+            --accent-dark: #805AD5;
+            --accent-light: #E8F4F8;
+            --accent-secondary: #FDF2F8;
+            --text-main: #4A5568;
+            --text-dark: #2c3e50;
+            --text-muted: #64748B;
+            --bg-primary: #ffffff;
+            --bg-secondary: #F8FAFC;
+            --bg-tertiary: #E2E8F0;
+            --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            --nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --sidebar-bg: #ffffff;
+            --sidebar-hover: #F8FAFC;
+            --sidebar-active: #E9D5FF;
+            --sidebar-active-text: #805AD5;
+            --transition-default: all 0.2s ease;
+        }
+        body { padding-top: 70px; }
+        .main-nav {
+            background-color: var(--bg-primary);
+            box-shadow: var(--nav-shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0.75rem 0;
+            transition: var(--transition-default);
+        }
+        .main-nav.scrolled { box-shadow: var(--card-shadow); padding: 0.5rem 0; }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 1.5rem;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: var(--transition-default);
+        }
+        .brand:hover { color: var(--accent); }
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(159, 122, 234, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+        .brand-name { font-weight: 600; font-size: 1.1rem; }
+        .user-section { display: flex; align-items: center; gap: 1rem; position: relative; }
+        .user-info {
+            text-align: right;
+            display: none;
+            @media (min-width: 768px) { display: block; }
+        }
+        .username { font-weight: 500; color: var(--text-dark); font-size: 0.95rem; }
+        .user-role { font-size: 0.85rem; color: var(--text-muted); }
+        .avatar-dropdown { position: relative; cursor: pointer; }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-default);
+            border: 2px solid transparent;
+            overflow: hidden;
+        }
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.3);
+            border-color: var(--accent);
+        }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            width: 200px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            border: 1px solid var(--bg-tertiary);
+            padding: 0.75rem 0;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: var(--transition-default);
+        }
+        .dropdown-item:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--accent-dark);
+            padding-left: 1.5rem;
+        }
+        .dropdown-item i {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .dropdown-item:hover i { color: var(--accent-dark); }
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--bg-tertiary);
+            margin: 0.5rem 0;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            @media (max-width: 768px) { display: block; }
+        }
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            margin-top: 2rem;
+        }
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 7rem;
+            flex-shrink: 0;
+            transition: var(--transition-default);
+        }
+        .sidebar:hover { box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); }
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-menu-item {
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+            transition: var(--transition-default);
+        }
+        .sidebar-menu-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: var(--transition-default);
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-menu-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: var(--accent);
+            transform: translateY(100%);
+            transition: var(--transition-default);
+        }
+        .sidebar-menu-link:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--text-dark);
+            padding-left: 1.25rem;
+        }
+        .sidebar-menu-link:hover::before { transform: translateY(0); }
+        .sidebar-menu-link.active {
+            background-color: var(--sidebar-active);
+            color: var(--sidebar-active-text);
+            font-weight: 500;
+        }
+        .sidebar-menu-link.active::before { transform: translateY(0); }
+        .sidebar-menu-link i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            /* 确保图标正确显示 */
+            display: inline-block;
+        }
+        .content-area { flex: 1; }
+        @media (max-width: 992px) {
+            .main-container { flex-direction: column; gap: 1.5rem; }
+            .sidebar { width: 100%; position: static; top: auto; }
+            .sidebar-menu { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+            .sidebar-menu-item { flex: 1; min-width: 120px; margin-bottom: 0; }
+            .sidebar-menu-link { justify-content: center; text-align: center; }
+            .dropdown-menu { right: auto; left: -100px; }
+        }
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .user-section { gap: 0.5rem; }
+            .user-info { display: none; }
+            .dropdown-menu { left: -80px; }
+        }
+        @media (max-width: 576px) {
+            .sidebar-menu-item { min-width: 100%; }
+        }
+        /* 模态框动画优化 */
+        #modalContent {
+            transition: all 0.3s ease;
+        }
+        #addFriendModal:not(.hidden) #modalContent {
+            scale: 100%;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-accent-light to-accent-secondary text-text font-sans">
+<!-- 顶部导航栏 -->
+<nav class="main-nav" id="mainNav">
+    <div class="nav-container">
+        <a href="/dashboard" class="brand" aria-label="Emotion Pal Dashboard">
+            <div class="brand-icon"><i class="fas fa-heart"></i></div>
+            <div><div class="brand-name">Emotion Pal</div></div>
+        </a>
+        <div class="user-section">
+            <div class="user-info">
+                <div class="username">Guest User</div>
+                <div class="user-role">User</div>
+            </div>
+            <div class="avatar-dropdown" id="avatarDropdown">
+                <div class="user-avatar">
+                    <img src="https://picsum.photos/id/64/40/40" alt="User avatar" class="avatar-img">
+                </div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="/user_center" class="dropdown-item">
+                        <i class="fas fa-user"></i><span>Profile</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="/logout" class="dropdown-item text-red-500">
+                        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                    </a>
+                </div>
+            </div>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- 主内容区 -->
+<div class="main-container">
+    <!-- 左侧侧边栏 -->
+    <aside class="sidebar" aria-label="Function menu">
+        <h3 class="sidebar-title">Function Menu</h3>
+        <ul class="sidebar-menu" id="sidebarMenu">
+            <li class="sidebar-menu-item">
+                <a href="/session_management" class="sidebar-menu-link" aria-label="Session management">
+                    <i class="fas fa-comments"></i><span>Session Management</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/friends_management" class="sidebar-menu-link active" aria-current="page" aria-label="Friends management">
+                    <i class="fas fa-user-friends"></i><span>Friend Management</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/ai_analysis" class="sidebar-menu-link" aria-label="AI analysis">
+                    <i class="fas fa-brain"></i><span>AI Analysis</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/user_center" class="sidebar-menu-link" aria-label="User center">
+                    <i class="fas fa-user-circle"></i><span>User Center</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- 右侧主内容 -->
+    <div class="content-area">
+        <main class="max-w-4xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold">Friend Management</h2>
+                    <p class="text-gray-500">Manage your connections and start emotional conversations</p>
+                </div>
+                <button id="addFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300 flex items-center gap-2 self-end">
+                    <i class="fas fa-plus"></i> Add Friend
+                </button>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="bg-white rounded-xl shadow-soft p-4 mb-8">
+                <div class="relative">
+                    <input type="text" placeholder="Search friends by username..."
+                           class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 好友标签页 -->
+            <div class="border-b border-gray-200 mb-6">
+                <div class="flex">
+                    <button class="px-6 py-3 font-medium text-accent border-b-2 border-accent">My Friends (8)</button>
+                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700 transition-all-300">Pending Requests (2)</button>
+                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700 transition-all-300">Blocked (1)</button>
+                </div>
+            </div>
+
+            <!-- 好友列表 -->
+            <div class="space-y-4" id="friendList">
+                <!-- 好友项 1 -->
+                <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300">
+                    <div class="flex items-center gap-4">
+                        <img src="https://picsum.photos/id/237/64/64" alt="Friend" class="w-12 h-12 rounded-full object-cover" loading="lazy">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium text-lg">Sarah Johnson</h3>
+                                <span class="emotion-indicator bg-green-500" title="Positive mood"></span>
+                            </div>
+                            <p class="text-sm text-gray-500">Last active: 2 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 self-end md:self-auto">
+                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm">
+                            <i class="fas fa-comment mr-1"></i> Chat
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-accent transition-all-300" title="View profile">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300" title="Remove friend">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 好友项 2 -->
+                <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300">
+                    <div class="flex items-center gap-4">
+                        <img src="https://picsum.photos/id/177/64/64" alt="Friend" class="w-12 h-12 rounded-full object-cover" loading="lazy">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium text-lg">Michael Chen</h3>
+                                <span class="emotion-indicator bg-yellow-500" title="Neutral mood"></span>
+                            </div>
+                            <p class="text-sm text-gray-500">Last active: 1 day ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 self-end md:self-auto">
+                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm">
+                            <i class="fas fa-comment mr-1"></i> Chat
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-accent transition-all-300" title="View profile">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300" title="Remove friend">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 好友项 3 -->
+                <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300">
+                    <div class="flex items-center gap-4">
+                        <img src="https://picsum.photos/id/342/64/64" alt="Friend" class="w-12 h-12 rounded-full object-cover" loading="lazy">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium text-lg">Emily Rodriguez</h3>
+                                <span class="emotion-indicator bg-red-500" title="Negative mood"></span>
+                            </div>
+                            <p class="text-sm text-gray-500">Online now</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 self-end md:self-auto">
+                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm">
+                            <i class="fas fa-comment mr-1"></i> Chat
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-accent transition-all-300" title="View profile">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300" title="Remove friend">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 空状态 -->
+            <div class="hidden bg-white rounded-xl shadow-soft p-8 text-center mt-8" id="emptyState">
+                <div class="w-20 h-20 mx-auto bg-primary/30 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-users text-3xl text-accent"></i>
+                </div>
+                <h3 class="text-xl font-medium mb-2">No friends yet</h3>
+                <p class="text-gray-500 mb-6">Add your first friend to start sharing emotions</p>
+                <button class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300">
+                    <i class="fas fa-plus mr-1"></i> Find Friends
+                </button>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="bg-gray-50 border-t border-gray-200 mt-16">
+            <div class="container mx-auto px-4 py-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-gray-500 text-sm">© 2025 Emotion Pal All Rights Reserved</div>
+                    <div class="flex gap-6 text-sm">
+                        <a href="#" class="text-gray-500 hover:text-accent transition-all-300">Privacy Policy</a>
+                        <a href="#" class="text-gray-500 hover:text-accent transition-all-300">User Agreement</a>
+                        <a href="#" class="text-gray-500 hover:text-accent transition-all-300">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<!-- 添加好友模态框 -->
+<div id="addFriendModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+     aria-modal="true" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+    <div id="modalContent" class="bg-white rounded-2xl shadow-soft max-w-md w-full mx-4 p-6 scale-95 opacity-0">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modalTitle" class="text-xl font-bold">Add New Friend</h3>
+            <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 transition-all-300" aria-label="Close modal">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <form id="addFriendForm">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Username or Email</label>
+                <input type="text" name="friend_identifier" required
+                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Friend Request Message (Optional)</label>
+                <textarea name="message" rows="3"
+                          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300"
+                          placeholder="Hi, I'd like to add you as a friend on Emotion Pal!"></textarea>
+            </div>
+            <button type="submit" class="w-full py-3 bg-accent text-white rounded-lg hover:bg-accent/90 shadow-soft transition-all-300 font-medium">
+                Send Friend Request
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('mainNav');
+        nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    // 用户下拉菜单
+    const avatarDropdown = document.getElementById('avatarDropdown');
+    const userDropdown = document.getElementById('userDropdown');
+    avatarDropdown.addEventListener('click', () => userDropdown.classList.toggle('show'));
+    document.addEventListener('click', (e) => {
+        if (!avatarDropdown.contains(e.target)) userDropdown.classList.remove('show');
+    });
+
+    // 模态框功能
+    const addFriendBtn = document.getElementById('addFriendBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const addFriendModal = document.getElementById('addFriendModal');
+    const modalContent = document.getElementById('modalContent');
+    const addFriendForm = document.getElementById('addFriendForm');
+
+    addFriendBtn.addEventListener('click', () => {
+        addFriendModal.classList.remove('hidden');
+        addFriendModal.setAttribute('aria-hidden', 'false');
+        // 触发模态框动画
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+        }, 10);
+    });
+
+    function closeModal() {
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            addFriendModal.classList.add('hidden');
+            addFriendModal.setAttribute('aria-hidden', 'true');
+        }, 300);
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    addFriendModal.addEventListener('click', (e) => {
+        if (e.target === addFriendModal) closeModal();
+    });
+
+    // 表单提交
+    addFriendForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(addFriendForm);
+        const friendData = {
+            identifier: formData.get('friend_identifier'),
+            message: formData.get('message')
+        };
+
+        try {
+            // 模拟API请求
+            await new Promise(resolve => setTimeout(resolve, 800));
+            alert('Friend request sent successfully!');
+            addFriendForm.reset();
+            closeModal();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+
+    // 动态渲染管理员菜单
+    const isAdmin = false; // 可从localStorage或后端获取
+    if (isAdmin) {
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        sidebarMenu.insertAdjacentHTML('beforeend', `
+            <li class="sidebar-menu-item">
+                <a href="/user_management" class="sidebar-menu-link" aria-label="User management">
+                    <i class="fas fa-users"></i><span>User Management</span>
+                </a>
+            </li>
+        `);
+    }
+
+    // 好友搜索功能
+    const searchInput = document.querySelector('input[placeholder="Search friends by username..."]');
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const friendItems = document.querySelectorAll('#friendList > div');
+        let hasResults = false;
+
+        friendItems.forEach(item => {
+            const friendName = item.querySelector('h3').textContent.toLowerCase();
+            const isMatch = friendName.includes(searchTerm);
+            item.style.display = isMatch ? 'flex' : 'none';
+            if (isMatch) hasResults = true;
+        });
+
+        // 显示/隐藏空状态
+        document.getElementById('emptyState').classList.toggle('hidden', hasResults);
+    });
+
+    // 标签页切换
+    const tabs = document.querySelectorAll('.border-b button');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => {
+                t.classList.remove('text-accent', 'border-b-2', 'border-accent');
+                t.classList.add('text-gray-500');
+            });
+            tab.classList.add('text-accent', 'border-b-2', 'border-accent');
+            tab.classList.remove('text-gray-500');
+        });
+    });
+
+    // 好友操作事件委托
+    const friendList = document.getElementById('friendList');
+    friendList.addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        // 聊天按钮
+        if (target.querySelector('.fa-comment')) {
+            const friendName = target.closest('div').querySelector('h3').textContent;
+            alert(`Starting chat with ${friendName}...`);
+        }
+
+        // 删除好友按钮
+        if (target.querySelector('.fa-trash')) {
+            if (confirm('Are you sure to remove this friend?')) {
+                target.closest('div').remove();
+                // 检查是否还有好友
+                const remainingFriends = document.querySelectorAll('#friendList > div');
+                document.getElementById('emptyState').classList.toggle('hidden', remainingFriends.length > 0);
+            }
+        }
+    });
+
+    // 模拟实时更新好友状态
+    function updateFriendStatus() {
+        const indicators = document.querySelectorAll('.emotion-indicator');
+        indicators.forEach(indicator => {
+            const statuses = ['bg-green-500', 'bg-yellow-500', 'bg-red-500'];
+            const currentStatus = indicator.className.replace('emotion-indicator ', '');
+            let newStatus;
+            do {
+                newStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            } while (newStatus === currentStatus);
+            indicator.className = `emotion-indicator ${newStatus}`;
+        });
+    }
+    setInterval(updateFriendStatus, 30000);
+</script>
+</body>
+</html>

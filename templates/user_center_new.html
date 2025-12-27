@@ -371,6 +371,11 @@
             flex: 1;
         }
 
+        .dashboard-header h1 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0;
+        }
 
         .sidebar-menu-link i {
             font-size: 1.1rem;
@@ -397,13 +402,22 @@
             color: var(--text-dark);
             margin-bottom: 1.25rem;
             font-size: 1.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             padding-bottom: 0.75rem;
             border-bottom: 1px solid var(--bg-tertiary);
         }
 
+        .section-card h2 i {
+            color: var(--accent);
+        }
+
         /* 按钮样式优化 */
         .btn {
-            border-radius: 12px;
+           border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
             transition: var(--transition-btn);
             display: inline-flex;
             align-items: center;
@@ -424,9 +438,9 @@
         }
 
         .btn-primary:hover {
-            background-color: var(--accent-dark);
+            background-color: #2980b9;
             transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
         }
 
         /* 个人资料头部 */
@@ -760,6 +774,36 @@
             box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
         }
 
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(46, 204, 113, 0.2);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.2);
+        }
+
+        .btn-outline-primary {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
 
         .table th {
             font-weight: 600;
@@ -771,6 +815,65 @@
             vertical-align: middle;
         }
 
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition-default);
+        }
+
+        .status-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+        /* 搜索区域样式优化 */
+        .search-container {
+            /*display: flex;*/
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: var(--transition-default);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
 
         .filter-group .form-select {
             max-width: 200px;
@@ -785,6 +888,29 @@
             box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
         }
 
+        .session-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* 加载状态样式 */
+        .loading-overlay {
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-tertiary);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: var(--loading-shadow);
+        }
 
         @keyframes spin {
             0% {
@@ -795,6 +921,12 @@
             }
         }
 
+        /* 空数据/错误提示样式 */
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
 
         .empty-state i, .error-state i {
             font-size: 3rem;
@@ -807,6 +939,9 @@
             color: var(--text-main);
         }
 
+        .error-state {
+            color: var(--danger);
+        }
 
         .error-state i {
             color: var(--danger);
@@ -1006,7 +1141,7 @@
             </li>
             <li class="sidebar-menu-item">
                 <a href="/friends_management" class="sidebar-menu-link" aria-label="Friends management" tabindex="0">
-                    <i class="fa fa-user-friends" aria-hidden="true"></i>
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
                     <span>Friend Management</span>
                 </a>
             </li>

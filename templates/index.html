@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emotion Pal - Understand Your Emotions, Chat with Empathy</title>
+    <title>Emotion Pal - Understand Understand Your Emotions, Chat with Empathy</title>
     <!-- Import Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Import Font Awesome Icons -->
+    <!-- Import Font Font Awesome Awesome Icons -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- Custom Configuration -->
@@ -85,9 +85,9 @@
 
             <!-- Input Area -->
             <div class="mb-6">
-                    <textarea id="chat-input"
-                              class="w-full h-24 p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300 resize-none"
-                              placeholder="e.g.: I'm so stressed out from working overtime today..."></textarea>
+                <textarea id="chat-input"
+                          class="w-full h-24 p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300 resize-none"
+                          placeholder="e.g.: I'm so stressed out from working overtime today..."></textarea>
                 <div class="flex justify-end mt-3">
                     <button id="send-btn"
                             class="px-6 py-3 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300 flex items-center gap-2">
@@ -101,12 +101,12 @@
             <div id="result-area" class="hidden">
                 <!-- Emotion Tags -->
                 <div class="mb-4 flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-secondary text-accent rounded-full text-sm">
-                            <i class="fa fa-tag mr-1"></i> Emotion: Anxiety
-                        </span>
+                    <span class="px-3 py-1 bg-secondary text-accent rounded-full text-sm">
+                        <i class="fa fa-tag mr-1"></i> Emotion: Anxiety
+                    </span>
                     <span class="px-3 py-1 bg-primary text-blue-600 rounded-full text-sm">
-                            <i class="fa fa-thermometer-half mr-1"></i> Emotion Intensity: 85%
-                        </span>
+                        <i class="fa fa-thermometer-half mr-1"></i> Emotion Intensity: 85%
+                    </span>
                 </div>
 
                 <!-- AI Empathetic Response -->
@@ -173,9 +173,10 @@
 
         <!-- Get Started Button -->
         <div class="text-center mt-12">
-            <button class="px-8 py-4 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300 text-lg font-medium">
+            <a href="/session_management"
+               class="inline-block px-8 py-4 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300 text-lg font-medium">
                 Get Started <i class="fa fa-arrow-right ml-2"></i>
-            </button>
+            </a>
         </div>
     </section>
 </main>
@@ -202,11 +203,40 @@
     const sendBtn = document.getElementById('send-btn');
     const chatInput = document.getElementById('chat-input');
     const resultArea = document.getElementById('result-area');
+    const emotionTag = resultArea.querySelector('.bg-secondary');
+    const intensityTag = resultArea.querySelector('.bg-primary');
+    const aiResponse = resultArea.querySelector('.text-gray-700');
 
-    // Simulate AI Emotion Recognition Interaction
-    sendBtn.addEventListener('click', function () {
-        // Validate Input Content
-        if (!chatInput.value.trim()) {
+    // 调用后端接口的函数
+    async function analyzeText(text) {
+        try {
+            const response = await fetch('/api/analyze-emotion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({text: text})
+            });
+
+            if (!response.ok) {
+                throw new Error('Analysis failed');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return {
+                emotion: 'Unknown',
+                intensity: 'N/A',
+                response: 'Sorry, we could not process your request.'
+            };
+        }
+    }
+
+    // 处理点击事件
+    sendBtn.addEventListener('click', async function () {
+        const text = chatInput.value.trim();
+        if (!text) {
             alert('Please enter some text and let AI try to understand you～');
             return;
         }
@@ -215,19 +245,32 @@
         sendBtn.disabled = true;
         sendBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing...';
 
-        // Simulate API Request Delay
-        setTimeout(() => {
-            // Show Result Area
-            resultArea.classList.remove('hidden');
-            // Scroll to Result Area
-            resultArea.scrollIntoView({behavior: 'smooth'});
-            // Restore Button State
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = '<i class="fa fa-paper-plane"></i> Chat with AI';
-        }, 1500);
+        // 调用后端接口
+        const result = await analyzeText(text);
+
+        // 更新UI显示结果
+        emotionTag.innerHTML = `<i class="fa fa-tag mr-1"></i> Emotion: ${result.emotion}`;
+        intensityTag.innerHTML = `<i class="fa fa-thermometer-half mr-1"></i> Emotion Intensity: ${result.intensity}`;
+        aiResponse.textContent = result.response;
+
+        // 显示结果区域并滚动
+        resultArea.classList.remove('hidden');
+        resultArea.scrollIntoView({behavior: 'smooth'});
+
+        // 恢复按钮状态
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<i class="fa fa-paper-plane"></i> Chat with AI';
     });
 
-    // Mobile Adaptation: Adjust Scroll When Input Gets Focus
+    // 支持回车键发送
+    chatInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendBtn.click();
+        }
+    });
+
+    // Mobile Adaptation
     chatInput.addEventListener('focus', function () {
         if (window.innerWidth < 768) {
             window.scrollTo({top: 0, behavior: 'smooth'});
