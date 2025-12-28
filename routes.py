@@ -766,6 +766,14 @@ def init_routes(app):
         ).first()
 
         if existing_relation:
+            if existing_relation.status == "rejected":
+                existing_relation.status = 'pending'
+                db.session.commit()
+                return jsonify({
+                    'success': True,
+                    'message': 'Friend request resent successfully',
+                    'relation': existing_relation.to_dict()
+                })
             return jsonify({
                 'success': False,
                 'error': f'Friend request already exists (status: {existing_relation.status})'
