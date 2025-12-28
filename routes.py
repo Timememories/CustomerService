@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, session, flash, j
 
 from bot import analyze_sentiment, generate_bot_response
 from models import db, User, Service, Appointment, ChatSession, Message, FriendRelation
-from datetime import datetime
+from datetime import datetime, UTC
 
 
 def init_routes(app):
@@ -555,96 +555,354 @@ def init_routes(app):
         return redirect(url_for('dashboard'))
 
     # 好友管理首页（展示页面）
+    # @app.route('/friends_management')
+    # def friends_management():
+    #     if 'user_id' not in session:
+    #         return redirect('/login')
+    #     return render_template('friends_management.html')
+
+    # @app.route('/friends_management', methods=['GET'])
+    # def get_friends():
+    #     if 'user_id' not in session:
+    #         return redirect('/login')
+    #
+    #     current_user_id = session['user_id']
+    #     # 查询所有好友关系（包括不同状态）
+    #     relations = db.session.query(FriendRelation).filter(
+    #         db.or_(
+    #             FriendRelation.user_id == current_user_id,
+    #             FriendRelation.friend_id == current_user_id
+    #         )
+    #     ).all()
+    #
+    #     # 统计各状态数量
+    #     status_counts = {
+    #         'pending': 0,
+    #         'accepted': 0,
+    #         'rejected': 0
+    #     }
+    #     for r in relations:
+    #         if r.status in status_counts:
+    #             status_counts[r.status] += 1
+    #
+    #     return render_template(
+    #         'friends_management.html',
+    #         friend_relations=relations,
+    #         current_user_id=current_user_id,
+    #         pending_count=status_counts['pending'],
+    #         accepted_count=status_counts['accepted'],
+    #         rejected_count=status_counts['rejected'],
+    #         friend_count=len(relations),
+    #         online_users=online_users  # 用于前端显示在线状态
+    #     )
+    #
+    # @app.route('/friends_management/handle_request', methods=['POST'])
+    # def handle_request():
+    #     """处理好友请求（接受/拒绝）"""
+    #     if 'user_id' not in session:
+    #         return jsonify({"success": False, "error": "Not logged in"}), 401
+    #
+    #     data = request.json
+    #     friend_id = data.get('friend_id')
+    #     action = data.get('action')  # accept/reject
+    #     current_user_id = session['user_id']
+    #
+    #     # 查找对应的好友关系（对方发起的请求）
+    #     relation = FriendRelation.query.filter_by(
+    #         user_id=friend_id,
+    #         friend_id=current_user_id,
+    #         status='pending'
+    #     ).first()
+    #
+    #     if not relation:
+    #         return jsonify({"success": False, "error": "Request not found"}), 404
+    #
+    #     # 更新状态
+    #     relation.status = 'accepted' if action == 'accept' else 'rejected'
+    #     relation.updated_at = datetime.now(UTC)
+    #     db.session.commit()
+    #
+    #     return jsonify({
+    #         "success": True,
+    #         "message": f"Request {action}ed successfully"
+    #     })
+    #
+    # @app.route('/friends_management/cancel_request', methods=['POST'])
+    # def cancel_request():
+    #     """取消已发送的请求"""
+    #     if 'user_id' not in session:
+    #         return jsonify({"success": False, "error": "Not logged in"}), 401
+    #
+    #     friend_id = request.json.get('friend_id')
+    #     current_user_id = session['user_id']
+    #
+    #     # 删除或更新状态为rejected
+    #     relation = FriendRelation.query.filter_by(
+    #         user_id=current_user_id,
+    #         friend_id=friend_id,
+    #         status='pending'
+    #     ).first()
+    #
+    #     if not relation:
+    #         return jsonify({"success": False, "error": "Request not found"}), 404
+    #
+    #     db.session.delete(relation)
+    #     db.session.commit()
+    #
+    #     return jsonify({"success": True, "message": "Request canceled"})
+    #
+    # # 保留原有的add_friend和delete_friend接口，稍作修改
+    # @app.route('/friends_management/add', methods=['POST'])
+    # def add_friend():
+    #     if 'user_id' not in session:
+    #         return jsonify({"success": False, "error": "Not logged in"}), 401
+    #
+    #     data = request.json
+    #     target_username = data.get('target_username')
+    #     if not target_username:
+    #         return jsonify({"success": False, "error": "Username is required"}), 400
+    #
+    #     target_user = User.query.filter_by(username=target_username).first()
+    #     if not target_user:
+    #         return jsonify({"success": False, "error": f"User '{target_username}' does not exist"}), 404
+    #
+    #     current_user_id = session['user_id']
+    #     # if target_user.id == current_user_id:
+    #     #     return jsonify({"success": False, "error": "Cannot add yourself as friend"}), 400
+    #
+    #     # 检查是否已有关系（无论状态）
+    #     existing = FriendRelation.query.filter(
+    #         db.or_(
+    #             (FriendRelation.user_id == current_user_id) & (FriendRelation.friend_id == target_user.id),
+    #             (FriendRelation.user_id == target_user.id) & (FriendRelation.friend_id == current_user_id)
+    #         )
+    #     ).first()
+    #
+    #     if existing:
+    #         return jsonify({
+    #             "success": False,
+    #             "error": f"Already have a relation with {target_username} (status: {existing.status})"
+    #         }), 400
+    #
+    #     # 创建新请求
+    #     new_relation = FriendRelation(
+    #         user_id=current_user_id,
+    #         friend_id=target_user.id,
+    #         status='pending',
+    #         created_at=datetime.now(UTC)
+    #     )
+    #     db.session.add(new_relation)
+    #     db.session.commit()
+    #
+    #     return jsonify({"success": True, "message": f"Friend request sent to {target_username}"})
+
+    # 好友管理页面
     @app.route('/friends_management')
-    def friends_management():
-        if 'user_id' not in session:
-            return redirect('/login')
-        return render_template('friends_management.html')
-
-    # 获取好友列表（API）
-    @app.route('/friends_management', methods=['GET'])
     def get_friends():
-        if 'user_id' not in session:
-            return jsonify({"success": False, "error": "Not logged in"}), 401
+        # 获取当前登录用户ID（根据你的认证方式调整）
+        current_user_id = session.get('user_id')
+        if not current_user_id:
+            return redirect('/login')
 
-        user_id = session['user_id']
-        # 查询当前用户的好友关系（假设FriendRelation表存储双向关系）
-        friends = db.session.query(
-            User.id, User.username, User.real_name, User.last_login_at, User.status
-        ).join(
-            FriendRelation,
+        # 查询当前用户的所有好友关系
+        friend_relations = FriendRelation.query.filter(
             db.or_(
-                (FriendRelation.user_id == user_id) & (FriendRelation.friend_id == User.id),
-                (FriendRelation.friend_id == user_id) & (FriendRelation.user_id == User.id)
+                FriendRelation.user_id == current_user_id,
+                FriendRelation.friend_id == current_user_id
             )
-        ).filter(FriendRelation.status == 'accepted').all()
+        ).all()
 
-        friend_list = [
-            {
-                "user_id": f.id,
-                "username": f.username,
-                "real_name": f.real_name,
-                "last_login": f.last_login_at.strftime('%Y-%m-%d %H:%M:%S') if f.last_login_at else "Never",
-                "status": f.status
-            } for f in friends
-        ]
-        return jsonify({"success": True, "friends": friend_list})
+        # 统计不同状态的数量
+        friend_count = len(friend_relations)
+        pending_count = len([r for r in friend_relations if r.status == 'pending'])
+        accepted_count = len([r for r in friend_relations if r.status == 'accepted'])
+        rejected_count = len([r for r in friend_relations if r.status == 'rejected'])
 
-    # 添加好友（API）
+        # 渲染模板，确保传递所有必要变量
+        return render_template(
+            'friends_management.html',
+            friend_relations=friend_relations,
+            current_user_id=current_user_id,
+            friend_count=friend_count,
+            pending_count=pending_count,
+            accepted_count=accepted_count,
+            rejected_count=rejected_count
+        )
+
+    # 添加好友接口
     @app.route('/friends_management/add', methods=['POST'])
     def add_friend():
-        if 'user_id' not in session:
-            return jsonify({"success": False, "error": "Not logged in"}), 401
+        data = request.get_json()
+        current_user_id = session.get('user_id')
 
-        data = request.json
+        if not current_user_id:
+            return jsonify({'success': False, 'error': 'Please login first'})
+
         target_username = data.get('target_username')
         if not target_username:
-            return jsonify({"success": False, "error": "Username is required"}), 400
+            return jsonify({'success': False, 'error': 'Username is required'})
 
+        # 查找目标用户
         target_user = User.query.filter_by(username=target_username).first()
         if not target_user:
-            return jsonify({"success": False, "error": f"User '{target_username}' does not exist"}), 404
+            return jsonify({'success': False, 'error': 'User not found'})
 
-        user_id = session['user_id']
-        if target_user.id == user_id:
-            return jsonify({"success": False, "error": "Cannot add yourself as friend"}), 400
+        # # 不能添加自己
+        if target_user.id == current_user_id:
+            return jsonify({'success': False, 'error': 'Cannot add yourself as friend'})
 
-        # 检查是否已为好友
-        existing = FriendRelation.query.filter(
-            (FriendRelation.user_id == user_id) & (FriendRelation.friend_id == target_user.id)
+        # 检查是否已发送过请求
+        existing_relation = FriendRelation.query.filter(
+            db.or_(
+                db.and_(
+                    FriendRelation.user_id == current_user_id,
+                    FriendRelation.friend_id == target_user.id
+                ),
+                db.and_(
+                    FriendRelation.user_id == target_user.id,
+                    FriendRelation.friend_id == current_user_id
+                )
+            )
         ).first()
-        if existing:
-            return jsonify({"success": False, "error": "Already friends"}), 400
 
-        # 创建好友请求（状态为pending）
+        if existing_relation:
+            return jsonify({
+                'success': False,
+                'error': f'Friend request already exists (status: {existing_relation.status})'
+            })
+
+        # 创建新的好友请求
         new_relation = FriendRelation(
-            user_id=user_id,
+            user_id=current_user_id,
             friend_id=target_user.id,
-            status='pending'
+            status='pending',
+            created_at=datetime.now(UTC)
         )
+
         db.session.add(new_relation)
         db.session.commit()
 
-        return jsonify({"success": True, "message": f"Friend request sent to {target_username}"})
+        return jsonify({
+            'success': True,
+            'message': 'Friend request sent successfully',
+            'relation': new_relation.to_dict()
+        })
 
-    # 删除好友（API）
-    @app.route('/friends_management/delete', methods=['POST'])
-    def delete_friend():
-        if 'user_id' not in session:
-            return jsonify({"success": False, "error": "Not logged in"}), 401
+    # 处理好友请求（接受/拒绝）
+    @app.route('/friends_management/handle_request', methods=['POST'])
+    def handle_friend_request():
+        data = request.get_json()
+        current_user_id = session.get('user_id')
 
-        friend_id = request.json.get('friend_id')
-        if not friend_id:
-            return jsonify({"success": False, "error": "Friend ID is required"}), 400
+        if not current_user_id:
+            return jsonify({'success': False, 'error': 'Please login first'})
 
-        user_id = session['user_id']
-        # 删除双向关系记录
-        FriendRelation.query.filter(
-            db.or_(
-                (FriendRelation.user_id == user_id) & (FriendRelation.friend_id == friend_id),
-                (FriendRelation.user_id == friend_id) & (FriendRelation.friend_id == user_id)
+        friend_id = data.get('friend_id')
+        action = data.get('action')  # accept/reject
+
+        if not friend_id or action not in ['accept', 'reject']:
+            return jsonify({'success': False, 'error': 'Invalid parameters'})
+
+        # 查找对应的好友关系
+        relation = FriendRelation.query.filter(
+            db.and_(
+                FriendRelation.friend_id == current_user_id,
+                FriendRelation.user_id == friend_id,
+                FriendRelation.status == 'pending'
             )
-        ).delete()
+        ).first()
+
+        if not relation:
+            return jsonify({'success': False, 'error': 'Friend request not found'})
+
+        # 更新状态
+        relation.status = 'accepted' if action == 'accept' else 'rejected'
         db.session.commit()
 
-        return jsonify({"success": True, "message": "Friend removed successfully"})
+        return jsonify({
+            'success': True,
+            'message': f'Friend request {action}ed successfully'
+        })
+
+    # 取消好友请求
+    @app.route('/friends_management/cancel_request', methods=['POST'])
+    def cancel_friend_request():
+        data = request.get_json()
+        current_user_id = session.get('user_id')
+
+        if not current_user_id:
+            return jsonify({'success': False, 'error': 'Please login first'})
+
+        friend_id = data.get('friend_id')
+
+        # 查找自己发起的未处理请求
+        relation = FriendRelation.query.filter(
+            db.and_(
+                FriendRelation.user_id == current_user_id,
+                FriendRelation.friend_id == friend_id,
+                FriendRelation.status == 'pending'
+            )
+        ).first()
+
+        if not relation:
+            return jsonify({'success': False, 'error': 'Pending request not found'})
+
+        # 删除请求或更新状态
+        db.session.delete(relation)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Friend request canceled successfully'
+        })
+
+    # 删除好友
+    @app.route('/friends_management/delete', methods=['POST'])
+    def delete_friend():
+        data = request.get_json()
+        current_user_id = session.get('user_id')
+
+        if not current_user_id:
+            return jsonify({'success': False, 'error': 'Please login first'})
+
+        friend_id = data.get('friend_id')
+
+        # 查找好友关系（双向都要考虑）
+        relation = FriendRelation.query.filter(
+            db.or_(
+                db.and_(
+                    FriendRelation.user_id == current_user_id,
+                    FriendRelation.friend_id == friend_id
+                ),
+                db.and_(
+                    FriendRelation.user_id == friend_id,
+                    FriendRelation.friend_id == current_user_id
+                )
+            )
+        ).first()
+
+        if not relation:
+            return jsonify({'success': False, 'error': 'Friend relation not found'})
+
+        # 删除好友关系
+        db.session.delete(relation)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Friend removed successfully'
+        })
+
+    @app.route('/profile')
+    def profile():
+        user_id = request.args.get('user_id')
+        if not user_id:
+            flash('User ID is required', 'error')
+            return redirect(url_for('dashboard'))
+
+        user = User.query.get(user_id)
+        if not user:
+            flash('User not found', 'error')
+            return redirect(url_for('dashboard'))
+
+        return render_template('profile.html', user=user)

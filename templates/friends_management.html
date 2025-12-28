@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friend Management - Emotion Pal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 升级到 Font Awesome 6 版本以支持所有图标 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -15,6 +14,7 @@
                         primary: '#E8F4F8',
                         secondary: '#FDF2F8',
                         accent: '#9F7AEA',
+                        accentDark: '#805AD5',
                         text: '#4A5568',
                     },
                     fontFamily: {
@@ -30,6 +30,8 @@
             .shadow-soft { box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05); }
             .transition-all-300 { transition: all 0.3s ease; }
             .emotion-indicator { width: 8px; height: 8px; border-radius: 50%; }
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         }
     </style>
     <style>
@@ -52,7 +54,13 @@
             --sidebar-active-text: #805AD5;
             --transition-default: all 0.2s ease;
         }
-        body { padding-top: 70px; }
+
+        body {
+            padding-top: 70px;
+            background: linear-gradient(to bottom right, var(--accent-light), var(--accent-secondary));
+            min-height: 100vh;
+        }
+
         .main-nav {
             background-color: var(--bg-primary);
             box-shadow: var(--nav-shadow);
@@ -64,7 +72,9 @@
             padding: 0.75rem 0;
             transition: var(--transition-default);
         }
+
         .main-nav.scrolled { box-shadow: var(--card-shadow); padding: 0.5rem 0; }
+
         .nav-container {
             display: flex;
             justify-content: space-between;
@@ -74,6 +84,7 @@
             width: 100%;
             padding: 0 1.5rem;
         }
+
         .brand {
             display: flex;
             align-items: center;
@@ -82,7 +93,9 @@
             color: var(--text-dark);
             transition: var(--transition-default);
         }
+
         .brand:hover { color: var(--accent); }
+
         .brand-icon {
             width: 36px;
             height: 36px;
@@ -94,16 +107,22 @@
             color: var(--accent);
             font-size: 1.25rem;
         }
+
         .brand-name { font-weight: 600; font-size: 1.1rem; }
+
         .user-section { display: flex; align-items: center; gap: 1rem; position: relative; }
+
         .user-info {
             text-align: right;
             display: none;
             @media (min-width: 768px) { display: block; }
         }
+
         .username { font-weight: 500; color: var(--text-dark); font-size: 0.95rem; }
         .user-role { font-size: 0.85rem; color: var(--text-muted); }
+
         .avatar-dropdown { position: relative; cursor: pointer; }
+
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -119,12 +138,15 @@
             border: 2px solid transparent;
             overflow: hidden;
         }
+
         .user-avatar:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(159, 122, 234, 0.3);
             border-color: var(--accent);
         }
+
         .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+
         .dropdown-menu {
             position: absolute;
             top: calc(100% + 0.5rem);
@@ -141,11 +163,13 @@
             transform: translateY(-10px);
             transition: all 0.2s ease;
         }
+
         .dropdown-menu.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
+
         .dropdown-item {
             display: flex;
             align-items: center;
@@ -155,23 +179,28 @@
             text-decoration: none;
             transition: var(--transition-default);
         }
+
         .dropdown-item:hover {
             background-color: var(--sidebar-hover);
             color: var(--accent-dark);
             padding-left: 1.5rem;
         }
+
         .dropdown-item i {
             font-size: 1rem;
             width: 20px;
             text-align: center;
             color: var(--text-muted);
         }
+
         .dropdown-item:hover i { color: var(--accent-dark); }
+
         .dropdown-divider {
             height: 1px;
             background-color: var(--bg-tertiary);
             margin: 0.5rem 0;
         }
+
         .mobile-menu-btn {
             display: none;
             background: none;
@@ -182,6 +211,7 @@
             padding: 0.25rem 0.5rem;
             @media (max-width: 768px) { display: block; }
         }
+
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -191,6 +221,7 @@
             width: 100%;
             margin-top: 2rem;
         }
+
         .sidebar {
             width: 260px;
             background: var(--sidebar-bg);
@@ -203,7 +234,9 @@
             flex-shrink: 0;
             transition: var(--transition-default);
         }
+
         .sidebar:hover { box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); }
+
         .sidebar-title {
             font-size: 1.25rem;
             font-weight: 600;
@@ -212,12 +245,15 @@
             padding-bottom: 0.75rem;
             border-bottom: 1px solid var(--bg-tertiary);
         }
+
         .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+
         .sidebar-menu-item {
             margin-bottom: 0.5rem;
             border-radius: 10px;
             transition: var(--transition-default);
         }
+
         .sidebar-menu-link {
             display: flex;
             align-items: center;
@@ -230,6 +266,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .sidebar-menu-link::before {
             content: '';
             position: absolute;
@@ -241,26 +278,114 @@
             transform: translateY(100%);
             transition: var(--transition-default);
         }
+
         .sidebar-menu-link:hover {
             background-color: var(--sidebar-hover);
             color: var(--text-dark);
             padding-left: 1.25rem;
         }
+
         .sidebar-menu-link:hover::before { transform: translateY(0); }
+
         .sidebar-menu-link.active {
             background-color: var(--sidebar-active);
             color: var(--sidebar-active-text);
             font-weight: 500;
         }
+
         .sidebar-menu-link.active::before { transform: translateY(0); }
+
         .sidebar-menu-link i {
             font-size: 1.1rem;
             width: 20px;
             text-align: center;
-            /* 确保图标正确显示 */
             display: inline-block;
         }
+
         .content-area { flex: 1; }
+
+        /* 状态标签样式 */
+        .status-badge {
+            @apply px-2 py-0.5 text-xs rounded-full;
+        }
+
+        .status-pending { @apply bg-yellow-100 text-yellow-800; }
+        .status-accepted { @apply bg-green-100 text-green-800; }
+        .status-rejected { @apply bg-red-100 text-red-800; }
+
+        /* 模态框动画 */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.3s ease;
+        }
+        .modal-exit {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .modal-exit-active {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.3s ease;
+        }
+
+        /* 按钮加载状态 */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: btn-loading-spinner 1s ease infinite;
+        }
+        @keyframes btn-loading-spinner {
+            from { transform: rotate(0turn); }
+            to { transform: rotate(1turn); }
+        }
+
+        /* 刷新按钮样式 */
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: white;
+            color: var(--accent);
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .refresh-btn:hover {
+            background-color: var(--accent);
+            color: white;
+            transform: rotate(90deg);
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.4);
+        }
+
+        .refresh-btn:active {
+            transform: rotate(90deg) scale(0.95);
+        }
+
         @media (max-width: 992px) {
             .main-container { flex-direction: column; gap: 1.5rem; }
             .sidebar { width: 100%; position: static; top: auto; }
@@ -269,22 +394,16 @@
             .sidebar-menu-link { justify-content: center; text-align: center; }
             .dropdown-menu { right: auto; left: -100px; }
         }
+
         @media (max-width: 768px) {
             body { padding-top: 60px; }
             .user-section { gap: 0.5rem; }
             .user-info { display: none; }
             .dropdown-menu { left: -80px; }
         }
+
         @media (max-width: 576px) {
             .sidebar-menu-item { min-width: 100%; }
-        }
-        /* 模态框动画优化 */
-        #modalContent {
-            transition: all 0.3s ease;
-        }
-        #addFriendModal:not(.hidden) #modalContent {
-            scale: 100%;
-            opacity: 1;
         }
     </style>
 </head>
@@ -354,316 +473,798 @@
     <!-- 右侧主内容 -->
     <div class="content-area">
         <main class="max-w-4xl mx-auto">
+            <!-- 页面标题 -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 class="text-2xl md:text-3xl font-bold">Friend Management</h2>
                     <p class="text-gray-500">Manage your connections and start emotional conversations</p>
                 </div>
-                <button id="addFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300 flex items-center gap-2 self-end">
-                    <i class="fas fa-plus"></i> Add Friend
-                </button>
+                <div class="flex items-center gap-3 self-end">
+                    <!-- 新增刷新按钮 -->
+                    <button id="refreshPageBtn" class="refresh-btn" title="Refresh page">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="addFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300 flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Add Friend
+                    </button>
+                </div>
             </div>
 
             <!-- 搜索栏 -->
             <div class="bg-white rounded-xl shadow-soft p-4 mb-8">
                 <div class="relative">
-                    <input type="text" placeholder="Search friends by username..."
+                    <input type="text" id="friendSearch" placeholder="Search friends by username..."
                            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 </div>
             </div>
 
-            <!-- 好友标签页 -->
+            <!-- 状态筛选标签 -->
             <div class="border-b border-gray-200 mb-6">
-                <div class="flex">
-                    <button class="px-6 py-3 font-medium text-accent border-b-2 border-accent">My Friends (8)</button>
-                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700 transition-all-300">Pending Requests (2)</button>
-                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700 transition-all-300">Blocked (1)</button>
+                <div class="flex flex-wrap gap-1">
+                    <button class="px-6 py-3 font-medium text-accent border-b-2 border-accent transition-all-300"
+                            data-filter="all">
+                        All Friends {% if friend_count %}({{ friend_count }}){% endif %}
+                    </button>
+                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-accent hover:border-b-2 hover:border-accent/30 transition-all-300"
+                            data-filter="pending">
+                        Pending Requests {% if pending_count %}({{ pending_count }}){% endif %}
+                    </button>
+                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-accent hover:border-b-2 hover:border-accent/30 transition-all-300"
+                            data-filter="accepted">
+                        Accepted {% if accepted_count %}({{ accepted_count }}){% endif %}
+                    </button>
+                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-accent hover:border-b-2 hover:border-accent/30 transition-all-300"
+                            data-filter="rejected">
+                        Rejected {% if rejected_count %}({{ rejected_count }}){% endif %}
+                    </button>
                 </div>
             </div>
 
             <!-- 好友列表 -->
             <div class="space-y-4" id="friendList">
-                <!-- 好友项 1 -->
-                <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300">
-                    <div class="flex items-center gap-4">
-                        <img src="https://picsum.photos/id/237/64/64" alt="Friend" class="w-12 h-12 rounded-full object-cover" loading="lazy">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-medium text-lg">Sarah Johnson</h3>
-                                <span class="emotion-indicator bg-green-500" title="Positive mood"></span>
-                            </div>
-                            <p class="text-sm text-gray-500">Last active: 2 hours ago</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 self-end md:self-auto">
-                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm">
-                            <i class="fas fa-comment mr-1"></i> Chat
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-accent transition-all-300" title="View profile">
-                            <i class="fas fa-user"></i>
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300" title="Remove friend">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
+                {% if friend_relations %}
+                    {% for relation in friend_relations %}
+                        {% if relation.user_id == current_user_id %}
+                            {% set friend = relation.friend %}
+                            {% set is_my_request = True %}
+                        {% else %}
+                            {% set friend = relation.user %}
+                            {% set is_my_request = False %}
+                        {% endif %}
 
-                <!-- 好友项 2 -->
-                <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300">
-                    <div class="flex items-center gap-4">
-                        <img src="https://picsum.photos/id/177/64/64" alt="Friend" class="w-12 h-12 rounded-full object-cover" loading="lazy">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-medium text-lg">Michael Chen</h3>
-                                <span class="emotion-indicator bg-yellow-500" title="Neutral mood"></span>
+                        {% if friend %}
+                        <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300"
+                             data-status="{{ relation.status }}"
+                             data-friend-id="{{ friend.id }}"
+                             data-username="{{ friend.username }}"
+                             data-ismine="{{ is_my_request }}">
+                            <div class="flex items-center gap-4">
+                                <img src="https://picsum.photos/id/{{ friend.id }}/64/64" alt="{{ friend.username }}"
+                                     class="w-12 h-12 rounded-full object-cover" loading="lazy">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-medium text-lg">{{ friend.real_name or friend.username }}</h3>
+                                        <span class="status-badge
+                                            {% if relation.status == 'pending' %}status-pending{% endif %}
+                                            {% if relation.status == 'accepted' %}status-accepted{% endif %}
+                                            {% if relation.status == 'rejected' %}status-rejected{% endif %}">
+                                            {{ relation.status | capitalize }}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">
+                                        {% if relation.status == 'pending' %}
+                                            {% if is_my_request %}
+                                                Request sent: {{ relation.created_at.strftime('%Y-%m-%d') }}
+                                            {% else %}
+                                                Request received: {{ relation.created_at.strftime('%Y-%m-%d') }}
+                                            {% endif %}
+                                        {% else %}
+                                            {% if friend.last_login_at %}
+                                                Last active: {{ friend.last_login_at.strftime('%Y-%m-%d %H:%M') }}
+                                            {% else %}
+                                                Never active
+                                            {% endif %}
+                                        {% endif %}
+                                    </p>
+                                </div>
                             </div>
-                            <p class="text-sm text-gray-500">Last active: 1 day ago</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 self-end md:self-auto">
-                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm">
-                            <i class="fas fa-comment mr-1"></i> Chat
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-accent transition-all-300" title="View profile">
-                            <i class="fas fa-user"></i>
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300" title="Remove friend">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
 
-                <!-- 好友项 3 -->
-                <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300">
-                    <div class="flex items-center gap-4">
-                        <img src="https://picsum.photos/id/342/64/64" alt="Friend" class="w-12 h-12 rounded-full object-cover" loading="lazy">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-medium text-lg">Emily Rodriguez</h3>
-                                <span class="emotion-indicator bg-red-500" title="Negative mood"></span>
+                            <!-- 根据状态显示不同操作按钮 -->
+                            <div class="flex items-center gap-3 self-end md:self-auto">
+                                {% if relation.status == 'accepted' %}
+                                    <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm chat-btn"
+                                            data-friend-id="{{ friend.id }}">
+                                        <i class="fas fa-comment mr-1"></i> Chat
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-accent transition-all-300 view-profile-btn"
+                                            title="View profile" data-friend-id="{{ friend.id }}">
+                                        <i class="fas fa-user"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300 delete-friend-btn"
+                                            title="Remove friend" data-friend-id="{{ friend.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                {% elif relation.status == 'pending' %}
+                                    {% if is_my_request %}
+                                        <!-- 自己发起的请求 -->
+                                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm cursor-not-allowed opacity-70">
+                                            <i class="fas fa-clock mr-1"></i> Pending
+                                        </button>
+                                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300 cancel-request-btn"
+                                                title="Cancel request" data-friend-id="{{ friend.id }}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    {% else %}
+                                        <!-- 收到的请求 -->
+                                        <button class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-all-300 text-sm accept-request-btn"
+                                                data-friend-id="{{ friend.id }}">
+                                            <i class="fas fa-check mr-1"></i> Accept
+                                        </button>
+                                        <button class="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all-300 text-sm reject-request-btn"
+                                                data-friend-id="{{ friend.id }}">
+                                            <i class="fas fa-times mr-1"></i> Reject
+                                        </button>
+                                    {% endif %}
+
+                                {% elif relation.status == 'rejected' %}
+                                    <button class="px-4 py-2 bg-accent text-white rounded-full hover:bg-accentDark transition-all-300 text-sm resend-request-btn"
+                                            data-friend-id="{{ friend.id }}">
+                                        <i class="fas fa-plus mr-1"></i>
+                                        {% if is_my_request %}
+                                            Add Again
+                                        {% else %}
+                                            Send Again
+                                        {% endif %}
+                                    </button>
+                                {% endif %}
                             </div>
-                            <p class="text-sm text-gray-500">Online now</p>
                         </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <!-- 初始空状态 -->
+                    <div class="bg-white rounded-xl shadow-soft p-8 text-center">
+                        <div class="w-20 h-20 mx-auto bg-primary/30 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-users text-3xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-medium mb-2">No friends yet</h3>
+                        <p class="text-gray-500 mb-6">Start connecting with people to see your friends here</p>
+                        <button id="initialAddFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300">
+                            <i class="fas fa-plus mr-2"></i> Add Your First Friend
+                        </button>
                     </div>
-                    <div class="flex items-center gap-3 self-end md:self-auto">
-                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm">
-                            <i class="fas fa-comment mr-1"></i> Chat
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-accent transition-all-300" title="View profile">
-                            <i class="fas fa-user"></i>
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300" title="Remove friend">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
+                {% endif %}
             </div>
 
-            <!-- 空状态 -->
+            <!-- 筛选空状态 -->
             <div class="hidden bg-white rounded-xl shadow-soft p-8 text-center mt-8" id="emptyState">
                 <div class="w-20 h-20 mx-auto bg-primary/30 rounded-full flex items-center justify-center mb-4">
                     <i class="fas fa-users text-3xl text-accent"></i>
                 </div>
-                <h3 class="text-xl font-medium mb-2">No friends yet</h3>
-                <p class="text-gray-500 mb-6">Add your first friend to start sharing emotions</p>
-                <button class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accent/90 shadow-soft transition-all-300">
-                    <i class="fas fa-plus mr-1"></i> Find Friends
+                <h3 class="text-xl font-medium mb-2" id="emptyStateTitle">No friends found</h3>
+                <p class="text-gray-500 mb-6" id="emptyStateDesc">Try changing your filter or search criteria</p>
+                <button id="emptyAddFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300">
+                    <i class="fas fa-plus mr-2"></i> Add New Friend
                 </button>
             </div>
         </main>
-
-        <!-- 页脚 -->
-        <footer class="bg-gray-50 border-t border-gray-200 mt-16">
-            <div class="container mx-auto px-4 py-8">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="text-gray-500 text-sm">© 2025 Emotion Pal All Rights Reserved</div>
-                    <div class="flex gap-6 text-sm">
-                        <a href="#" class="text-gray-500 hover:text-accent transition-all-300">Privacy Policy</a>
-                        <a href="#" class="text-gray-500 hover:text-accent transition-all-300">User Agreement</a>
-                        <a href="#" class="text-gray-500 hover:text-accent transition-all-300">Contact Us</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
     </div>
 </div>
 
 <!-- 添加好友模态框 -->
-<div id="addFriendModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
-     aria-modal="true" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
-    <div id="modalContent" class="bg-white rounded-2xl shadow-soft max-w-md w-full mx-4 p-6 scale-95 opacity-0">
-        <div class="flex justify-between items-center mb-4">
-            <h3 id="modalTitle" class="text-xl font-bold">Add New Friend</h3>
-            <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 transition-all-300" aria-label="Close modal">
+<div id="addFriendModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div id="modalContent" class="bg-white rounded-2xl shadow-lg max-w-md w-full mx-4 p-6 transform transition-all duration-300 scale-95 opacity-0">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold">Add New Friend</h3>
+            <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
         <form id="addFriendForm">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Username or Email</label>
-                <input type="text" name="friend_identifier" required
-                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300">
+                <label for="friendUsername" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input type="text" id="friendUsername" name="username"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+                       placeholder="Enter friend's username" required>
             </div>
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Friend Request Message (Optional)</label>
-                <textarea name="message" rows="3"
-                          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all-300"
+                <label for="friendMessage" class="block text-sm font-medium text-gray-700 mb-1">Friend Request Message</label>
+                <textarea id="friendMessage" name="message" rows="3"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all"
                           placeholder="Hi, I'd like to add you as a friend on Emotion Pal!"></textarea>
             </div>
-            <button type="submit" class="w-full py-3 bg-accent text-white rounded-lg hover:bg-accent/90 shadow-soft transition-all-300 font-medium">
+            <button type="submit" id="sendRequestBtn" class="w-full bg-accent text-white py-3 rounded-lg hover:bg-accentDark transition-colors font-medium">
                 Send Friend Request
             </button>
         </form>
     </div>
 </div>
 
+<!-- 确认操作模态框 -->
+<div id="confirmModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-lg max-w-md w-full mx-4 p-6">
+        <div class="text-center mb-6">
+            <div id="confirmIcon" class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-trash text-2xl text-red-500"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2" id="confirmTitle">Are you sure?</h3>
+            <p class="text-gray-500" id="confirmDesc">This action cannot be undone</p>
+        </div>
+        <div class="flex gap-3">
+            <button id="cancelConfirmBtn" class="flex-1 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all-300 font-medium">
+                Cancel
+            </button>
+            <button id="confirmActionBtn" class="flex-1 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all-300 font-medium">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 通知提示 -->
+<div id="notification" class="fixed top-20 right-4 bg-white rounded-lg shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50 flex items-center gap-3 max-w-sm">
+    <div id="notificationIcon" class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+        <i class="fas fa-check text-green-500"></i>
+    </div>
+    <div>
+        <h4 class="font-medium" id="notificationTitle">Success</h4>
+        <p class="text-sm text-gray-500" id="notificationMessage">Action completed successfully</p>
+    </div>
+    <button id="closeNotification" class="text-gray-400 hover:text-gray-600">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
 <script>
-    // 导航栏滚动效果
-    window.addEventListener('scroll', () => {
-        const nav = document.getElementById('mainNav');
-        nav.classList.toggle('scrolled', window.scrollY > 10);
+    // 全局变量
+    let currentAction = null;
+    let currentFriendId = null;
+
+    // DOM加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const nav = document.getElementById('mainNav');
+            nav.classList.toggle('scrolled', window.scrollY > 10);
+        });
+
+        // 用户头像下拉菜单
+        const avatarDropdown = document.getElementById('avatarDropdown');
+        const userDropdown = document.getElementById('userDropdown');
+
+        avatarDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function() {
+            userDropdown.classList.remove('show');
+        });
+
+        // 初始化刷新按钮事件
+        initRefreshButton();
+
+        // 初始化筛选功能
+        initFilter();
+
+        // 初始化搜索功能
+        initSearch();
+
+        // 初始化好友操作事件
+        initFriendActions();
+
+        // 初始化模态框
+        initModals();
+
+        // 初始化通知系统
+        initNotifications();
+
+        // 初始化添加好友表单提交事件
+        initAddFriendForm();
     });
 
-    // 用户下拉菜单
-    const avatarDropdown = document.getElementById('avatarDropdown');
-    const userDropdown = document.getElementById('userDropdown');
-    avatarDropdown.addEventListener('click', () => userDropdown.classList.toggle('show'));
-    document.addEventListener('click', (e) => {
-        if (!avatarDropdown.contains(e.target)) userDropdown.classList.remove('show');
-    });
+    // 初始化刷新按钮
+    function initRefreshButton() {
+        const refreshBtn = document.getElementById('refreshPageBtn');
 
-    // 模态框功能
-    const addFriendBtn = document.getElementById('addFriendBtn');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const addFriendModal = document.getElementById('addFriendModal');
-    const modalContent = document.getElementById('modalContent');
-    const addFriendForm = document.getElementById('addFriendForm');
+        refreshBtn.addEventListener('click', function() {
+            // 添加加载动画
+            this.classList.add('btn-loading');
 
-    addFriendBtn.addEventListener('click', () => {
-        addFriendModal.classList.remove('hidden');
-        addFriendModal.setAttribute('aria-hidden', 'false');
-        // 触发模态框动画
-        setTimeout(() => {
-            modalContent.classList.remove('scale-95', 'opacity-0');
-        }, 10);
-    });
-
-    function closeModal() {
-        modalContent.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-            addFriendModal.classList.add('hidden');
-            addFriendModal.setAttribute('aria-hidden', 'true');
-        }, 300);
+            // 刷新页面
+            setTimeout(() => {
+                window.location.reload();
+            }, 300);
+        });
     }
 
-    closeModalBtn.addEventListener('click', closeModal);
-    addFriendModal.addEventListener('click', (e) => {
-        if (e.target === addFriendModal) closeModal();
-    });
-
-    // 表单提交
-    addFriendForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(addFriendForm);
-        const friendData = {
-            identifier: formData.get('friend_identifier'),
-            message: formData.get('message')
-        };
-
-        try {
-            // 模拟API请求
-            await new Promise(resolve => setTimeout(resolve, 800));
-            alert('Friend request sent successfully!');
-            addFriendForm.reset();
-            closeModal();
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        }
-    });
-
-    // 动态渲染管理员菜单
-    const isAdmin = false; // 可从localStorage或后端获取
-    if (isAdmin) {
-        const sidebarMenu = document.getElementById('sidebarMenu');
-        sidebarMenu.insertAdjacentHTML('beforeend', `
-            <li class="sidebar-menu-item">
-                <a href="/user_management" class="sidebar-menu-link" aria-label="User management">
-                    <i class="fas fa-users"></i><span>User Management</span>
-                </a>
-            </li>
-        `);
-    }
-
-    // 好友搜索功能
-    const searchInput = document.querySelector('input[placeholder="Search friends by username..."]');
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
+    // 筛选功能初始化
+    function initFilter() {
+        const filterButtons = document.querySelectorAll('[data-filter]');
         const friendItems = document.querySelectorAll('#friendList > div');
-        let hasResults = false;
+        const emptyState = document.getElementById('emptyState');
 
-        friendItems.forEach(item => {
-            const friendName = item.querySelector('h3').textContent.toLowerCase();
-            const isMatch = friendName.includes(searchTerm);
-            item.style.display = isMatch ? 'flex' : 'none';
-            if (isMatch) hasResults = true;
-        });
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // 更新按钮样式
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('text-accent', 'border-b-2', 'border-accent');
+                    btn.classList.add('text-gray-500', 'hover:text-accent', 'hover:border-b-2', 'hover:border-accent/30');
+                });
 
-        // 显示/隐藏空状态
-        document.getElementById('emptyState').classList.toggle('hidden', hasResults);
-    });
+                this.classList.add('text-accent', 'border-b-2', 'border-accent');
+                this.classList.remove('text-gray-500', 'hover:text-accent', 'hover:border-b-2', 'hover:border-accent/30');
 
-    // 标签页切换
-    const tabs = document.querySelectorAll('.border-b button');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => {
-                t.classList.remove('text-accent', 'border-b-2', 'border-accent');
-                t.classList.add('text-gray-500');
+                const filter = this.getAttribute('data-filter');
+                let visibleCount = 0;
+
+                // 更新空状态文本
+                document.getElementById('emptyStateTitle').textContent =
+                    filter === 'all' ? 'No friends found' : `No ${filter} requests`;
+                document.getElementById('emptyStateDesc').textContent =
+                    filter === 'all' ? 'You have no friends yet' : `You have no ${filter} friend requests`;
+
+                // 筛选好友项
+                friendItems.forEach(item => {
+                    const status = item.getAttribute('data-status');
+                    let shouldShow = false;
+
+                    switch(filter) {
+                        case 'all':
+                            shouldShow = true;
+                            break;
+                        case 'pending':
+                        case 'accepted':
+                        case 'rejected':
+                            shouldShow = status === filter;
+                            break;
+                    }
+
+                    if (shouldShow) {
+                        item.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // 控制空状态显示
+                emptyState.classList.toggle('hidden', visibleCount > 0);
             });
-            tab.classList.add('text-accent', 'border-b-2', 'border-accent');
-            tab.classList.remove('text-gray-500');
         });
-    });
+    }
 
-    // 好友操作事件委托
-    const friendList = document.getElementById('friendList');
-    friendList.addEventListener('click', (e) => {
-        const target = e.target.closest('button');
-        if (!target) return;
+    // 搜索功能初始化
+    function initSearch() {
+        const searchInput = document.getElementById('friendSearch');
+        const friendItems = document.querySelectorAll('#friendList > div');
+        const emptyState = document.getElementById('emptyState');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            if (searchTerm) {
+                friendItems.forEach(item => {
+                    const username = item.getAttribute('data-username')?.toLowerCase() || '';
+                    const isVisible = username.includes(searchTerm);
+
+                    item.classList.toggle('hidden', !isVisible);
+                    if (isVisible) visibleCount++;
+                });
+
+                // 更新空状态
+                document.getElementById('emptyStateTitle').textContent = 'No matches found';
+                document.getElementById('emptyStateDesc').textContent = `No friends match "${searchTerm}"`;
+            } else {
+                // 清空搜索，恢复当前筛选状态
+                const activeFilter = document.querySelector('[data-filter].text-accent');
+                const filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
+
+                friendItems.forEach(item => {
+                    const status = item.getAttribute('data-status');
+                    let shouldShow = false;
+
+                    switch(filter) {
+                        case 'all':
+                            shouldShow = true;
+                            break;
+                        case 'pending':
+                        case 'accepted':
+                        case 'rejected':
+                            shouldShow = status === filter;
+                            break;
+                    }
+
+                    item.classList.toggle('hidden', !shouldShow);
+                    if (shouldShow) visibleCount++;
+                });
+
+                // 恢复空状态文本
+                document.getElementById('emptyStateTitle').textContent = filter === 'all' ? 'No friends found' : `No ${filter} requests`;
+                document.getElementById('emptyStateDesc').textContent = filter === 'all' ? 'You have no friends yet' : `You have no ${filter} friend requests`;
+            }
+
+            emptyState.classList.toggle('hidden', visibleCount > 0);
+        });
+    }
+
+    // 更新确认模态框内容
+    function updateConfirmModal(title, desc, iconClass, iconBg, iconColor, btnBg, btnHover) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmDesc').textContent = desc;
+
+        const confirmIcon = document.getElementById('confirmIcon');
+        confirmIcon.className = `w-16 h-16 mx-auto ${iconBg} rounded-full flex items-center justify-center mb-4`;
+        confirmIcon.innerHTML = `<i class="${iconClass} text-2xl ${iconColor}"></i>`;
+
+        const confirmBtn = document.getElementById('confirmActionBtn');
+        confirmBtn.className = `flex-1 py-2.5 ${btnBg} text-white rounded-lg ${btnHover} transition-all-300 font-medium`;
+    }
+
+    // 好友操作事件初始化
+    function initFriendActions() {
+        // 接受请求
+        document.querySelectorAll('.accept-request-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentFriendId = this.getAttribute('data-friend-id');
+                currentAction = 'accept';
+
+                // 更新确认模态框
+                updateConfirmModal(
+                    'Accept Friend Request',
+                    'Are you sure you want to accept this friend request?',
+                    'fas fa-check',
+                    'bg-green-100',
+                    'text-green-500',
+                    'bg-green-500',
+                    'hover:bg-green-600'
+                );
+
+                document.getElementById('confirmModal').classList.remove('hidden');
+            });
+        });
+
+        // 拒绝请求
+        document.querySelectorAll('.reject-request-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentFriendId = this.getAttribute('data-friend-id');
+                currentAction = 'reject';
+
+                // 更新确认模态框
+                updateConfirmModal(
+                    'Reject Friend Request',
+                    'Are you sure you want to reject this friend request?',
+                    'fas fa-times',
+                    'bg-red-100',
+                    'text-red-500',
+                    'bg-red-500',
+                    'hover:bg-red-600'
+                );
+
+                document.getElementById('confirmModal').classList.remove('hidden');
+            });
+        });
+
+        // 取消请求
+        document.querySelectorAll('.cancel-request-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentFriendId = this.getAttribute('data-friend-id');
+                currentAction = 'cancel';
+
+                // 更新确认模态框
+                updateConfirmModal(
+                    'Cancel Friend Request',
+                    'Are you sure you want to cancel this friend request?',
+                    'fas fa-times',
+                    'bg-yellow-100',
+                    'text-yellow-500',
+                    'bg-yellow-500',
+                    'hover:bg-yellow-600'
+                );
+
+                document.getElementById('confirmModal').classList.remove('hidden');
+            });
+        });
+
+        // 删除好友
+        document.querySelectorAll('.delete-friend-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentFriendId = this.getAttribute('data-friend-id');
+                currentAction = 'delete';
+
+                // 更新确认模态框
+                updateConfirmModal(
+                    'Remove Friend',
+                    'Are you sure you want to remove this friend? This action cannot be undone.',
+                    'fas fa-trash',
+                    'bg-red-100',
+                    'text-red-500',
+                    'bg-red-500',
+                    'hover:bg-red-600'
+                );
+
+                document.getElementById('confirmModal').classList.remove('hidden');
+            });
+        });
+
+        // 重新发送请求
+        document.querySelectorAll('.resend-request-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentFriendId = this.getAttribute('data-friend-id');
+                currentAction = 'resend';
+
+                // 更新确认模态框
+                updateConfirmModal(
+                    'Resend Friend Request',
+                    'Are you sure you want to resend a friend request to this user?',
+                    'fas fa-plus',
+                    'bg-accent/10',
+                    'text-accent',
+                    'bg-accent',
+                    'hover:bg-accentDark'
+                );
+
+                document.getElementById('confirmModal').classList.remove('hidden');
+            });
+        });
 
         // 聊天按钮
-        if (target.querySelector('.fa-comment')) {
-            const friendName = target.closest('div').querySelector('h3').textContent;
-            alert(`Starting chat with ${friendName}...`);
-        }
+        document.querySelectorAll('.chat-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const friendId = this.getAttribute('data-friend-id');
+                window.location.href = `/chat?friend_id=${friendId}`;
+            });
+        });
 
-        // 删除好友按钮
-        if (target.querySelector('.fa-trash')) {
-            if (confirm('Are you sure to remove this friend?')) {
-                target.closest('div').remove();
-                // 检查是否还有好友
-                const remainingFriends = document.querySelectorAll('#friendList > div');
-                document.getElementById('emptyState').classList.toggle('hidden', remainingFriends.length > 0);
+        // 查看资料按钮
+        document.querySelectorAll('.view-profile-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const friendId = this.getAttribute('data-friend-id');
+                window.location.href = `/profile?user_id=${friendId}`;
+            });
+        });
+
+        // 确认操作按钮
+        document.getElementById('confirmActionBtn').addEventListener('click', function() {
+            handleFriendAction(currentAction, currentFriendId);
+            document.getElementById('confirmModal').classList.add('hidden');
+        });
+
+        // 取消确认按钮
+        document.getElementById('cancelConfirmBtn').addEventListener('click', function() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            currentAction = null;
+            currentFriendId = null;
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
             }
-        }
-    });
-
-    // 模拟实时更新好友状态
-    function updateFriendStatus() {
-        const indicators = document.querySelectorAll('.emotion-indicator');
-        indicators.forEach(indicator => {
-            const statuses = ['bg-green-500', 'bg-yellow-500', 'bg-red-500'];
-            const currentStatus = indicator.className.replace('emotion-indicator ', '');
-            let newStatus;
-            do {
-                newStatus = statuses[Math.floor(Math.random() * statuses.length)];
-            } while (newStatus === currentStatus);
-            indicator.className = `emotion-indicator ${newStatus}`;
         });
     }
-    setInterval(updateFriendStatus, 30000);
+
+    // 处理好友操作
+    async function handleFriendAction(action, friendId) {
+        try {
+            let url = '';
+            let data = { friend_id: friendId };
+            let successMsg = '';
+
+            switch(action) {
+                case 'accept':
+                    url = '/friends_management/handle_request';
+                    data.action = 'accept';
+                    successMsg = 'Friend request accepted';
+                    break;
+                case 'reject':
+                    url = '/friends_management/handle_request';
+                    data.action = 'reject';
+                    successMsg = 'Friend request rejected';
+                    break;
+                case 'cancel':
+                    url = '/friends_management/cancel_request';
+                    successMsg = 'Friend request canceled';
+                    break;
+                case 'delete':
+                    url = '/friends_management/delete';
+                    successMsg = 'Friend removed successfully';
+                    break;
+                case 'resend':
+                    url = '/friends_management/add';
+                    // 获取好友用户名
+                    const friendItem = document.querySelector(`[data-friend-id="${friendId}"]`);
+                    const username = friendItem ? friendItem.getAttribute('data-username') : '';
+                    data.target_username = username;
+                    successMsg = 'Friend request sent again';
+                    break;
+                default:
+                    showNotification('Error', 'Invalid action', 'error');
+                    return;
+            }
+
+            // 发送请求
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('Success', successMsg, 'success');
+                // 刷新页面或更新UI
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showNotification('Error', result.error || 'Operation failed', 'error');
+            }
+        } catch (error) {
+            console.error('Error handling friend action:', error);
+            showNotification('Error', 'An error occurred', 'error');
+        } finally {
+            currentAction = null;
+            currentFriendId = null;
+        }
+    }
+
+    // 初始化模态框
+    function initModals() {
+        const addFriendBtn = document.getElementById('addFriendBtn');
+        const initialAddFriendBtn = document.getElementById('initialAddFriendBtn');
+        const emptyAddFriendBtn = document.getElementById('emptyAddFriendBtn');
+        const addFriendModal = document.getElementById('addFriendModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        // 打开添加好友模态框
+        [addFriendBtn, initialAddFriendBtn, emptyAddFriendBtn].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    addFriendModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                        modalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                });
+            }
+        });
+
+        // 关闭添加好友模态框
+        closeModalBtn.addEventListener('click', function() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                addFriendModal.classList.add('hidden');
+            }, 300);
+        });
+
+        // 点击模态框外部关闭
+        addFriendModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    addFriendModal.classList.add('hidden');
+                }, 300);
+            }
+        });
+    }
+
+    // 初始化添加好友表单
+    function initAddFriendForm() {
+        const form = document.getElementById('addFriendForm');
+        const sendRequestBtn = document.getElementById('sendRequestBtn');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const usernameInput = document.getElementById('friendUsername');
+            const username = usernameInput.value.trim();
+
+            if (!username) {
+                showNotification('Error', 'Please enter a username', 'error');
+                return;
+            }
+
+            // 显示加载状态
+            sendRequestBtn.disabled = true;
+            sendRequestBtn.classList.add('btn-loading');
+            sendRequestBtn.textContent = 'Sending...';
+
+            try {
+                // 发送添加好友请求
+                const response = await fetch('/friends_management/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        target_username: username,
+                        message: document.getElementById('friendMessage').value
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('Success', 'Friend request sent successfully', 'success');
+                    // 重置表单并关闭模态框
+                    form.reset();
+                    document.getElementById('closeModalBtn').click();
+                    // 刷新页面
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification('Error', result.error || 'Failed to send request', 'error');
+                }
+            } catch (error) {
+                console.error('Error sending friend request:', error);
+                showNotification('Error', 'An error occurred', 'error');
+            } finally {
+                // 恢复按钮状态
+                sendRequestBtn.disabled = false;
+                sendRequestBtn.classList.remove('btn-loading');
+                sendRequestBtn.textContent = 'Send Friend Request';
+            }
+        });
+    }
+
+    // 初始化通知系统
+    function initNotifications() {
+        const closeNotificationBtn = document.getElementById('closeNotification');
+
+        closeNotificationBtn.addEventListener('click', function() {
+            hideNotification();
+        });
+    }
+
+    // 显示通知
+    function showNotification(title, message, type = 'success') {
+        const notification = document.getElementById('notification');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const notificationIcon = document.getElementById('notificationIcon');
+
+        // 设置通知内容
+        notificationTitle.textContent = title;
+        notificationMessage.textContent = message;
+
+        // 设置图标样式
+        if (type === 'success') {
+            notificationIcon.className = 'w-8 h-8 rounded-full bg-green-100 flex items-center justify-center';
+            notificationIcon.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+        } else if (type === 'error') {
+            notificationIcon.className = 'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center';
+            notificationIcon.innerHTML = '<i class="fas fa-times text-red-500"></i>';
+        } else if (type === 'warning') {
+            notificationIcon.className = 'w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center';
+            notificationIcon.innerHTML = '<i class="fas fa-exclamation text-yellow-500"></i>';
+        }
+
+        // 显示通知
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
+
+        // 自动隐藏
+        setTimeout(hideNotification, 5000);
+    }
+
+    // 隐藏通知
+    function hideNotification() {
+        const notification = document.getElementById('notification');
+        notification.classList.remove('translate-x-0');
+        notification.classList.add('translate-x-full');
+    }
 </script>
 </body>
 </html>

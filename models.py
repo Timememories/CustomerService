@@ -66,6 +66,22 @@ class User(db.Model):
         back_populates='assigned_agent',
         lazy=True
     )
+    # 5. 好友关系 - 我发起的好友请求
+    friend_requests_sent = db.relationship(
+        'FriendRelation',
+        foreign_keys='FriendRelation.user_id',
+        back_populates='user',
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
+    # 6. 好友关系 - 我收到的好友请求
+    friend_requests_received = db.relationship(
+        'FriendRelation',
+        foreign_keys='FriendRelation.friend_id',
+        back_populates='friend',
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
 
     def __init__(self, username: str, password: str, role: str = 'user',
                  email: Optional[str] = None, phone: Optional[str] = None, **kwargs):
@@ -362,8 +378,38 @@ class Message(db.Model):
 
 
 class FriendRelation(db.Model):
+    __tablename__ = 'friend_relations'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     friend_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending/accepted/rejected
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+    # 关键：添加双向关联关系
+    user = db.relationship(
+        'User',
+        foreign_keys=[user_id],
+        back_populates='friend_requests_sent',
+        lazy=True
+    )
+    friend = db.relationship(
+        'User',
+        foreign_keys=[friend_id],
+        back_populates='friend_requests_received',
+        lazy=True
+    )
+
+    def to_dict(self):
+        """转换为字典格式"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'friend_id': self.friend_id,
+            'status': self.status,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
+            'user': self.user.to_dict() if self.user else None,
+            'friend': self.friend.to_dict() if self.friend else None
+        }
+
+    def __repr__(self):
+        return f"<FriendRelation(id={self.id}, user_id={self.user_id}, friend_id={self.friend_id}, status='{self.status}')>"
