@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_socketio import SocketIO, join_room, leave_room, send
+from flask_migrate import Migrate  # 新增：导入迁移工具
 from models import db, Message, ChatSession
 from routes import init_routes
 from bot import analyze_sentiment, generate_bot_response
@@ -10,11 +11,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+migrate = Migrate(app, db)  # 新增：初始化迁移工具，绑定app和db实例
 socketio = SocketIO(app)
 
 init_routes(app)
 
 
+# 以下SocketIO事件和原有逻辑保持不变
 @socketio.on('join')
 def on_join(data):
     room = data['room']
@@ -54,8 +57,7 @@ def handle_message(data):
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        pass
-    # socketio.run(app, debug=True)
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True,port=5001)
+    # 注释掉原有的 db.create_all()，改用迁移工具管理表结构
+    # with app.app_context():
+    #     db.create_all()
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, port=5001)

@@ -384,6 +384,7 @@ class FriendRelation(db.Model):
     friend_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending/accepted/rejected
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    session_id = db.Column(db.Integer, db.ForeignKey('chat_sessions.id'), nullable=True)
 
     # 关键：添加双向关联关系
     user = db.relationship(
