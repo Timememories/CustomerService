@@ -244,7 +244,7 @@ def init_routes(app):
 
             # 4. 更新密码（使用User模型的set_password方法，若无则直接加密）
             # 方式1：如果User模型有set_password方法（推荐）
-            a = user.set_password(new_password)
+            user.set_password(new_password)
 
             # 方式2：如果无set_password方法，手动加密
             # user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
@@ -332,7 +332,8 @@ def init_routes(app):
         # 不同角色看到的会话不同
         if role == 'user':
             # 用户只能看到自己的会话
-            my_sessions = ChatSession.query.filter_by(user_id=user_id).all()
+            my_sessions = ChatSession.query.filter(
+                db.or_(db.and_(ChatSession.user_id == user_id), db.and_(ChatSession.agent_id == user_id))).all()
             pending_sessions = []
             agents = []
         elif role == 'agent':
@@ -524,16 +525,6 @@ def init_routes(app):
             flash('Rated successfully')
         return redirect(url_for('dashboard'))
 
-    # @app.route('/start_chat', methods=['POST'])
-    # def start_chat():
-    #     if 'user_id' not in session or session['role'] != 'user':
-    #         return redirect(url_for('login'))
-    #     chat_session = ChatSession(user_id=session['user_id'])
-    #     db.session.add(chat_session)
-    #     db.session.commit()
-    #     session['current_session'] = chat_session.id
-    #     return redirect(url_for('chat', session_id=chat_session.id))
-
     @app.route('/join_chat/<int:session_id>')
     def join_chat(session_id):
         if 'user_id' not in session or session['role'] != 'agent':
@@ -544,18 +535,6 @@ def init_routes(app):
             db.session.commit()
         session['current_session'] = session_id
         return redirect(url_for('chat', session_id=session_id))
-
-    # @app.route('/chat/<int:session_id>')
-    # def chat(session_id):
-    #     if 'user_id' not in session:
-    #         return redirect(url_for('login'))
-    #     chat_session = ChatSession.query.get(session_id)
-    #     if not chat_session or (session['role'] == 'user' and chat_session.user_id != session['user_id']) or (
-    #             session['role'] == 'agent' and chat_session.agent_id != session['user_id']):
-    #         flash('Access denied')
-    #         return redirect(url_for('dashboard'))
-    #     messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
-    #     return render_template('chat.html', session_id=session_id, messages=messages, role=session['role'])
 
     @app.route('/admin/add_service', methods=['POST'])
     def add_service():
@@ -921,6 +900,8 @@ def init_routes(app):
                 ).first()
 
                 if existing_session:
+                    friend_relation.session_id = existing_session.id
+                    db.session.commit()
                     return redirect(url_for('chat', session_id=existing_session.id))
 
                 # 创建好友会话（用agent_id存储好友ID）
@@ -932,6 +913,8 @@ def init_routes(app):
                     status='active'
                 )
                 db.session.add(new_session)
+                db.session.commit()
+                friend_relation.session_id = new_session.id
                 db.session.commit()
 
             else:

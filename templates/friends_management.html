@@ -26,12 +26,13 @@
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto { content-visibility: auto; }
-            .shadow-soft { box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05); }
-            .transition-all-300 { transition: all 0.3s ease; }
-            .emotion-indicator { width: 8px; height: 8px; border-radius: 50%; }
-            .scrollbar-hide::-webkit-scrollbar { display: none; }
-            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            .shadow-soft {
+                box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            }
+
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
         }
     </style>
     <style>
@@ -73,7 +74,10 @@
             transition: var(--transition-default);
         }
 
-        .main-nav.scrolled { box-shadow: var(--card-shadow); padding: 0.5rem 0; }
+        .main-nav.scrolled {
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem 0;
+        }
 
         .nav-container {
             display: flex;
@@ -94,7 +98,9 @@
             transition: var(--transition-default);
         }
 
-        .brand:hover { color: var(--accent); }
+        .brand:hover {
+            color: var(--accent);
+        }
 
         .brand-icon {
             width: 36px;
@@ -108,20 +114,41 @@
             font-size: 1.25rem;
         }
 
-        .brand-name { font-weight: 600; font-size: 1.1rem; }
+        .brand-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
 
-        .user-section { display: flex; align-items: center; gap: 1rem; position: relative; }
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
 
         .user-info {
             text-align: right;
             display: none;
-            @media (min-width: 768px) { display: block; }
+            @media (min-width: 768px) {
+                display: block;
+            }
         }
 
-        .username { font-weight: 500; color: var(--text-dark); font-size: 0.95rem; }
-        .user-role { font-size: 0.85rem; color: var(--text-muted); }
+        .username {
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
 
-        .avatar-dropdown { position: relative; cursor: pointer; }
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .avatar-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
 
         .user-avatar {
             width: 40px;
@@ -145,7 +172,11 @@
             border-color: var(--accent);
         }
 
-        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .dropdown-menu {
             position: absolute;
@@ -193,7 +224,9 @@
             color: var(--text-muted);
         }
 
-        .dropdown-item:hover i { color: var(--accent-dark); }
+        .dropdown-item:hover i {
+            color: var(--accent-dark);
+        }
 
         .dropdown-divider {
             height: 1px;
@@ -209,7 +242,9 @@
             font-size: 1.25rem;
             cursor: pointer;
             padding: 0.25rem 0.5rem;
-            @media (max-width: 768px) { display: block; }
+            @media (max-width: 768px) {
+                display: block;
+            }
         }
 
         .main-container {
@@ -235,7 +270,9 @@
             transition: var(--transition-default);
         }
 
-        .sidebar:hover { box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); }
+        .sidebar:hover {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+        }
 
         .sidebar-title {
             font-size: 1.25rem;
@@ -246,7 +283,11 @@
             border-bottom: 1px solid var(--bg-tertiary);
         }
 
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
         .sidebar-menu-item {
             margin-bottom: 0.5rem;
@@ -285,7 +326,9 @@
             padding-left: 1.25rem;
         }
 
-        .sidebar-menu-link:hover::before { transform: translateY(0); }
+        .sidebar-menu-link:hover::before {
+            transform: translateY(0);
+        }
 
         .sidebar-menu-link.active {
             background-color: var(--sidebar-active);
@@ -293,7 +336,9 @@
             font-weight: 500;
         }
 
-        .sidebar-menu-link.active::before { transform: translateY(0); }
+        .sidebar-menu-link.active::before {
+            transform: translateY(0);
+        }
 
         .sidebar-menu-link i {
             font-size: 1.1rem;
@@ -302,31 +347,44 @@
             display: inline-block;
         }
 
-        .content-area { flex: 1; }
+        .content-area {
+            flex: 1;
+        }
 
         /* 状态标签样式 */
         .status-badge {
             @apply px-2 py-0.5 text-xs rounded-full;
         }
 
-        .status-pending { @apply bg-yellow-100 text-yellow-800; }
-        .status-accepted { @apply bg-green-100 text-green-800; }
-        .status-rejected { @apply bg-red-100 text-red-800; }
+        .status-pending {
+            @apply bg-yellow-100 text-yellow-800;
+        }
+
+        .status-accepted {
+            @apply bg-green-100 text-green-800;
+        }
+
+        .status-rejected {
+            @apply bg-red-100 text-red-800;
+        }
 
         /* 模态框动画 */
         .modal-enter {
             opacity: 0;
             transform: scale(0.95);
         }
+
         .modal-enter-active {
             opacity: 1;
             transform: scale(1);
             transition: all 0.3s ease;
         }
+
         .modal-exit {
             opacity: 1;
             transform: scale(1);
         }
+
         .modal-exit-active {
             opacity: 0;
             transform: scale(0.95);
@@ -339,6 +397,7 @@
             pointer-events: none;
             opacity: 0.7;
         }
+
         .btn-loading::after {
             content: '';
             position: absolute;
@@ -354,9 +413,14 @@
             border-radius: 50%;
             animation: btn-loading-spinner 1s ease infinite;
         }
+
         @keyframes btn-loading-spinner {
-            from { transform: rotate(0turn); }
-            to { transform: rotate(1turn); }
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
         }
 
         /* 刷新按钮样式 */
@@ -387,23 +451,62 @@
         }
 
         @media (max-width: 992px) {
-            .main-container { flex-direction: column; gap: 1.5rem; }
-            .sidebar { width: 100%; position: static; top: auto; }
-            .sidebar-menu { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-            .sidebar-menu-item { flex: 1; min-width: 120px; margin-bottom: 0; }
-            .sidebar-menu-link { justify-content: center; text-align: center; }
-            .dropdown-menu { right: auto; left: -100px; }
+            .main-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+                top: auto;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .sidebar-menu-item {
+                flex: 1;
+                min-width: 120px;
+                margin-bottom: 0;
+            }
+
+            .sidebar-menu-link {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .dropdown-menu {
+                right: auto;
+                left: -100px;
+            }
         }
 
         @media (max-width: 768px) {
-            body { padding-top: 60px; }
-            .user-section { gap: 0.5rem; }
-            .user-info { display: none; }
-            .dropdown-menu { left: -80px; }
+            body {
+                padding-top: 60px;
+            }
+
+            .user-section {
+                gap: 0.5rem;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .dropdown-menu {
+                left: -80px;
+            }
         }
 
         @media (max-width: 576px) {
-            .sidebar-menu-item { min-width: 100%; }
+            .sidebar-menu-item {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -413,16 +516,29 @@
     <div class="nav-container">
         <a href="/dashboard" class="brand" aria-label="Emotion Pal Dashboard">
             <div class="brand-icon"><i class="fas fa-heart"></i></div>
-            <div><div class="brand-name">Emotion Pal</div></div>
+            <div>
+                <div class="brand-name">Emotion Pal</div>
+            </div>
         </a>
         <div class="user-section">
             <div class="user-info">
-                <div class="username">Guest User</div>
-                <div class="user-role">User</div>
+                <div class="username" aria-label="Username">{{ session.username }}</div>
+                <div class="user-role" aria-label="User role">{{ session.role | capitalize }}</div>
             </div>
             <div class="avatar-dropdown" id="avatarDropdown">
                 <div class="user-avatar">
-                    <img src="https://picsum.photos/id/64/40/40" alt="User avatar" class="avatar-img">
+                    <!-- 支持头像图片或首字母兜底 -->
+                    {% if session.avatar and session.avatar != '' %}
+                    <img
+                            src="{{ session.avatar }}"
+                            alt="{{ session.username }}'s avatar"
+                            class="avatar-img"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='{{ session.username[0].upper() }}'"
+                    >
+                    {% else %}
+                    {{ session.username[0].upper() }}
+                    {% endif %}
                 </div>
                 <div class="dropdown-menu" id="userDropdown">
                     <a href="/user_center" class="dropdown-item">
@@ -453,7 +569,8 @@
                 </a>
             </li>
             <li class="sidebar-menu-item">
-                <a href="/friends_management" class="sidebar-menu-link active" aria-current="page" aria-label="Friends management">
+                <a href="/friends_management" class="sidebar-menu-link active" aria-current="page"
+                   aria-label="Friends management">
                     <i class="fas fa-user-friends"></i><span>Friend Management</span>
                 </a>
             </li>
@@ -484,7 +601,8 @@
                     <button id="refreshPageBtn" class="refresh-btn" title="Refresh page">
                         <i class="fas fa-sync-alt"></i>
                     </button>
-                    <button id="addFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300 flex items-center gap-2">
+                    <button id="addFriendBtn"
+                            class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300 flex items-center gap-2">
                         <i class="fas fa-plus"></i> Add Friend
                     </button>
                 </div>
@@ -524,117 +642,119 @@
             <!-- 好友列表 -->
             <div class="space-y-4" id="friendList">
                 {% if friend_relations %}
-                    {% for relation in friend_relations %}
-                        {% if relation.user_id == current_user_id %}
-                            {% set friend = relation.friend %}
-                            {% set is_my_request = True %}
-                        {% else %}
-                            {% set friend = relation.user %}
-                            {% set is_my_request = False %}
-                        {% endif %}
+                {% for relation in friend_relations %}
+                {% if relation.user_id == current_user_id %}
+                {% set friend = relation.friend %}
+                {% set is_my_request = True %}
+                {% else %}
+                {% set friend = relation.user %}
+                {% set is_my_request = False %}
+                {% endif %}
 
-                        {% if friend %}
-                        <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300"
-                             data-status="{{ relation.status }}"
-                             data-friend-id="{{ friend.id }}"
-                             data-username="{{ friend.username }}"
-                             data-ismine="{{ is_my_request }}">
-                            <div class="flex items-center gap-4">
-                                <img src="https://picsum.photos/id/{{ friend.id }}/64/64" alt="{{ friend.username }}"
-                                     class="w-12 h-12 rounded-full object-cover" loading="lazy">
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="font-medium text-lg">{{ friend.real_name or friend.username }}</h3>
-                                        <span class="status-badge
+                {% if friend %}
+                <div class="bg-white rounded-xl shadow-soft p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all-300"
+                     data-status="{{ relation.status }}"
+                     data-friend-id="{{ friend.id }}"
+                     data-username="{{ friend.username }}"
+                     data-ismine="{{ is_my_request }}">
+                    {{ friend.session_id }}
+                    <div class="flex items-center gap-4">
+                        <img src="{{ friend.avatar }}" alt="{{ friend.username }}"
+                             class="w-12 h-12 rounded-full object-cover" loading="lazy">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium text-lg">{{ friend.real_name or friend.username }}</h3>
+                                <span class="status-badge
                                             {% if relation.status == 'pending' %}status-pending{% endif %}
                                             {% if relation.status == 'accepted' %}status-accepted{% endif %}
                                             {% if relation.status == 'rejected' %}status-rejected{% endif %}">
                                             {{ relation.status | capitalize }}
                                         </span>
-                                    </div>
-                                    <p class="text-sm text-gray-500">
-                                        {% if relation.status == 'pending' %}
-                                            {% if is_my_request %}
-                                                Request sent: {{ relation.created_at.strftime('%Y-%m-%d') }}
-                                            {% else %}
-                                                Request received: {{ relation.created_at.strftime('%Y-%m-%d') }}
-                                            {% endif %}
-                                        {% else %}
-                                            {% if friend.last_login_at %}
-                                                Last active: {{ friend.last_login_at.strftime('%Y-%m-%d %H:%M') }}
-                                            {% else %}
-                                                Never active
-                                            {% endif %}
-                                        {% endif %}
-                                    </p>
-                                </div>
                             </div>
-
-                            <!-- 根据状态显示不同操作按钮 -->
-                            <div class="flex items-center gap-3 self-end md:self-auto">
-                                {% if relation.status == 'accepted' %}
-                                    <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm chat-btn"
-                                            data-friend-id="{{ friend.id }}">
-                                        <i class="fas fa-comment mr-1"></i> Chat
-                                    </button>
-                                    <button class="p-2 text-gray-500 hover:text-accent transition-all-300 view-profile-btn"
-                                            title="View profile" data-friend-id="{{ friend.id }}">
-                                        <i class="fas fa-user"></i>
-                                    </button>
-                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300 delete-friend-btn"
-                                            title="Remove friend" data-friend-id="{{ friend.id }}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-
-                                {% elif relation.status == 'pending' %}
-                                    {% if is_my_request %}
-                                        <!-- 自己发起的请求 -->
-                                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm cursor-not-allowed opacity-70">
-                                            <i class="fas fa-clock mr-1"></i> Pending
-                                        </button>
-                                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300 cancel-request-btn"
-                                                title="Cancel request" data-friend-id="{{ friend.id }}">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    {% else %}
-                                        <!-- 收到的请求 -->
-                                        <button class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-all-300 text-sm accept-request-btn"
-                                                data-friend-id="{{ friend.id }}">
-                                            <i class="fas fa-check mr-1"></i> Accept
-                                        </button>
-                                        <button class="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all-300 text-sm reject-request-btn"
-                                                data-friend-id="{{ friend.id }}">
-                                            <i class="fas fa-times mr-1"></i> Reject
-                                        </button>
-                                    {% endif %}
-
-                                {% elif relation.status == 'rejected' %}
-                                    <button class="px-4 py-2 bg-accent text-white rounded-full hover:bg-accentDark transition-all-300 text-sm resend-request-btn"
-                                            data-friend-id="{{ friend.id }}">
-                                        <i class="fas fa-plus mr-1"></i>
-                                        {% if is_my_request %}
-                                            Add Again
-                                        {% else %}
-                                            Send Again
-                                        {% endif %}
-                                    </button>
+                            <p class="text-sm text-gray-500">
+                                {% if relation.status == 'pending' %}
+                                {% if is_my_request %}
+                                Request sent: {{ relation.created_at.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                Request received: {{ relation.created_at.strftime('%Y-%m-%d') }}
                                 {% endif %}
-                            </div>
+                                {% else %}
+                                {% if friend.last_login_at %}
+                                Last active: {{ friend.last_login_at.strftime('%Y-%m-%d %H:%M') }}
+                                {% else %}
+                                Never active
+                                {% endif %}
+                                {% endif %}
+                            </p>
                         </div>
-                        {% endif %}
-                    {% endfor %}
-                {% else %}
-                    <!-- 初始空状态 -->
-                    <div class="bg-white rounded-xl shadow-soft p-8 text-center">
-                        <div class="w-20 h-20 mx-auto bg-primary/30 rounded-full flex items-center justify-center mb-4">
-                            <i class="fas fa-users text-3xl text-accent"></i>
-                        </div>
-                        <h3 class="text-xl font-medium mb-2">No friends yet</h3>
-                        <p class="text-gray-500 mb-6">Start connecting with people to see your friends here</p>
-                        <button id="initialAddFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300">
-                            <i class="fas fa-plus mr-2"></i> Add Your First Friend
-                        </button>
                     </div>
+
+                    <!-- 根据状态显示不同操作按钮 -->
+                    <div class="flex items-center gap-3 self-end md:self-auto">
+                        {% if relation.status == 'accepted' %}
+                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm chat-btn"
+                                data-friend-id="{{ friend.id  }}" data-session_id="{{ relation.session_id }}">
+                            <i class="fas fa-comment mr-1"></i> Chat
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-accent transition-all-300 view-profile-btn"
+                                title="View profile" data-friend-id="{{ friend.id }}">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300 delete-friend-btn"
+                                title="Remove friend" data-friend-id="{{ friend.id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+
+                        {% elif relation.status == 'pending' %}
+                        {% if is_my_request %}
+                        <!-- 自己发起的请求 -->
+                        <button class="px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-all-300 text-sm cursor-not-allowed opacity-70">
+                            <i class="fas fa-clock mr-1"></i> Pending
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-red-500 transition-all-300 cancel-request-btn"
+                                title="Cancel request" data-friend-id="{{ friend.id }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        {% else %}
+                        <!-- 收到的请求 -->
+                        <button class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-all-300 text-sm accept-request-btn"
+                                data-friend-id="{{ friend.id }}">
+                            <i class="fas fa-check mr-1"></i> Accept
+                        </button>
+                        <button class="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all-300 text-sm reject-request-btn"
+                                data-friend-id="{{ friend.id }}">
+                            <i class="fas fa-times mr-1"></i> Reject
+                        </button>
+                        {% endif %}
+
+                        {% elif relation.status == 'rejected' %}
+                        <button class="px-4 py-2 bg-accent text-white rounded-full hover:bg-accentDark transition-all-300 text-sm resend-request-btn"
+                                data-friend-id="{{ friend.id }}">
+                            <i class="fas fa-plus mr-1"></i>
+                            {% if is_my_request %}
+                            Add Again
+                            {% else %}
+                            Send Again
+                            {% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% else %}
+                <!-- 初始空状态 -->
+                <div class="bg-white rounded-xl shadow-soft p-8 text-center">
+                    <div class="w-20 h-20 mx-auto bg-primary/30 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-users text-3xl text-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-medium mb-2">No friends yet</h3>
+                    <p class="text-gray-500 mb-6">Start connecting with people to see your friends here</p>
+                    <button id="initialAddFriendBtn"
+                            class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300">
+                        <i class="fas fa-plus mr-2"></i> Add Your First Friend
+                    </button>
+                </div>
                 {% endif %}
             </div>
 
@@ -645,7 +765,8 @@
                 </div>
                 <h3 class="text-xl font-medium mb-2" id="emptyStateTitle">No friends found</h3>
                 <p class="text-gray-500 mb-6" id="emptyStateDesc">Try changing your filter or search criteria</p>
-                <button id="emptyAddFriendBtn" class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300">
+                <button id="emptyAddFriendBtn"
+                        class="px-5 py-2.5 bg-accent text-white rounded-full hover:bg-accentDark shadow-soft transition-all-300">
                     <i class="fas fa-plus mr-2"></i> Add New Friend
                 </button>
             </div>
@@ -655,7 +776,8 @@
 
 <!-- 添加好友模态框 -->
 <div id="addFriendModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div id="modalContent" class="bg-white rounded-2xl shadow-lg max-w-md w-full mx-4 p-6 transform transition-all duration-300 scale-95 opacity-0">
+    <div id="modalContent"
+         class="bg-white rounded-2xl shadow-lg max-w-md w-full mx-4 p-6 transform transition-all duration-300 scale-95 opacity-0">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold">Add New Friend</h3>
             <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
@@ -670,12 +792,14 @@
                        placeholder="Enter friend's username" required>
             </div>
             <div class="mb-6">
-                <label for="friendMessage" class="block text-sm font-medium text-gray-700 mb-1">Friend Request Message</label>
+                <label for="friendMessage" class="block text-sm font-medium text-gray-700 mb-1">Friend Request
+                    Message</label>
                 <textarea id="friendMessage" name="message" rows="3"
                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all"
                           placeholder="Hi, I'd like to add you as a friend on Emotion Pal!"></textarea>
             </div>
-            <button type="submit" id="sendRequestBtn" class="w-full bg-accent text-white py-3 rounded-lg hover:bg-accentDark transition-colors font-medium">
+            <button type="submit" id="sendRequestBtn"
+                    class="w-full bg-accent text-white py-3 rounded-lg hover:bg-accentDark transition-colors font-medium">
                 Send Friend Request
             </button>
         </form>
@@ -686,17 +810,20 @@
 <div id="confirmModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl shadow-lg max-w-md w-full mx-4 p-6">
         <div class="text-center mb-6">
-            <div id="confirmIcon" class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <div id="confirmIcon"
+                 class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
                 <i class="fas fa-trash text-2xl text-red-500"></i>
             </div>
             <h3 class="text-xl font-bold mb-2" id="confirmTitle">Are you sure?</h3>
             <p class="text-gray-500" id="confirmDesc">This action cannot be undone</p>
         </div>
         <div class="flex gap-3">
-            <button id="cancelConfirmBtn" class="flex-1 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all-300 font-medium">
+            <button id="cancelConfirmBtn"
+                    class="flex-1 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all-300 font-medium">
                 Cancel
             </button>
-            <button id="confirmActionBtn" class="flex-1 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all-300 font-medium">
+            <button id="confirmActionBtn"
+                    class="flex-1 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all-300 font-medium">
                 Confirm
             </button>
         </div>
@@ -704,7 +831,8 @@
 </div>
 
 <!-- 通知提示 -->
-<div id="notification" class="fixed top-20 right-4 bg-white rounded-lg shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50 flex items-center gap-3 max-w-sm">
+<div id="notification"
+     class="fixed top-20 right-4 bg-white rounded-lg shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50 flex items-center gap-3 max-w-sm">
     <div id="notificationIcon" class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
         <i class="fas fa-check text-green-500"></i>
     </div>
@@ -723,9 +851,9 @@
     let currentFriendId = null;
 
     // DOM加载完成后初始化
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // 导航栏滚动效果
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             const nav = document.getElementById('mainNav');
             nav.classList.toggle('scrolled', window.scrollY > 10);
         });
@@ -734,12 +862,12 @@
         const avatarDropdown = document.getElementById('avatarDropdown');
         const userDropdown = document.getElementById('userDropdown');
 
-        avatarDropdown.addEventListener('click', function(e) {
+        avatarDropdown.addEventListener('click', function (e) {
             e.stopPropagation();
             userDropdown.classList.toggle('show');
         });
 
-        document.addEventListener('click', function() {
+        document.addEventListener('click', function () {
             userDropdown.classList.remove('show');
         });
 
@@ -769,7 +897,7 @@
     function initRefreshButton() {
         const refreshBtn = document.getElementById('refreshPageBtn');
 
-        refreshBtn.addEventListener('click', function() {
+        refreshBtn.addEventListener('click', function () {
             // 添加加载动画
             this.classList.add('btn-loading');
 
@@ -787,7 +915,7 @@
         const emptyState = document.getElementById('emptyState');
 
         filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 // 更新按钮样式
                 filterButtons.forEach(btn => {
                     btn.classList.remove('text-accent', 'border-b-2', 'border-accent');
@@ -811,7 +939,7 @@
                     const status = item.getAttribute('data-status');
                     let shouldShow = false;
 
-                    switch(filter) {
+                    switch (filter) {
                         case 'all':
                             shouldShow = true;
                             break;
@@ -842,7 +970,7 @@
         const friendItems = document.querySelectorAll('#friendList > div');
         const emptyState = document.getElementById('emptyState');
 
-        searchInput.addEventListener('input', function() {
+        searchInput.addEventListener('input', function () {
             const searchTerm = this.value.toLowerCase().trim();
             let visibleCount = 0;
 
@@ -867,7 +995,7 @@
                     const status = item.getAttribute('data-status');
                     let shouldShow = false;
 
-                    switch(filter) {
+                    switch (filter) {
                         case 'all':
                             shouldShow = true;
                             break;
@@ -908,7 +1036,7 @@
     function initFriendActions() {
         // 接受请求
         document.querySelectorAll('.accept-request-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 currentFriendId = this.getAttribute('data-friend-id');
                 currentAction = 'accept';
 
@@ -929,7 +1057,7 @@
 
         // 拒绝请求
         document.querySelectorAll('.reject-request-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 currentFriendId = this.getAttribute('data-friend-id');
                 currentAction = 'reject';
 
@@ -950,7 +1078,7 @@
 
         // 取消请求
         document.querySelectorAll('.cancel-request-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 currentFriendId = this.getAttribute('data-friend-id');
                 currentAction = 'cancel';
 
@@ -971,7 +1099,7 @@
 
         // 删除好友
         document.querySelectorAll('.delete-friend-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 currentFriendId = this.getAttribute('data-friend-id');
                 currentAction = 'delete';
 
@@ -992,7 +1120,7 @@
 
         // 重新发送请求
         document.querySelectorAll('.resend-request-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 currentFriendId = this.getAttribute('data-friend-id');
                 currentAction = 'resend';
 
@@ -1013,35 +1141,43 @@
 
         // 聊天按钮
         document.querySelectorAll('.chat-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 const friendId = this.getAttribute('data-friend-id');
-                window.location.href = `/chat?friend_id=${friendId}`;
+                const sessionId = this.getAttribute('data-session_id');
+                if (sessionId === 'None' || !sessionId) {
+                    // 当friendId无效时，使用默认的friend_id=2调用start_chat接口
+                    window.location.href = `/start_chat?type=friend&friend_id=${friendId}`;
+                } else {
+                    // 正常情况下使用获取到的friendId跳转
+                    window.location.href = `/chat/${sessionId}`;
+                }
+
             });
         });
 
         // 查看资料按钮
         document.querySelectorAll('.view-profile-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 const friendId = this.getAttribute('data-friend-id');
                 window.location.href = `/profile?user_id=${friendId}`;
             });
         });
 
         // 确认操作按钮
-        document.getElementById('confirmActionBtn').addEventListener('click', function() {
+        document.getElementById('confirmActionBtn').addEventListener('click', function () {
             handleFriendAction(currentAction, currentFriendId);
             document.getElementById('confirmModal').classList.add('hidden');
         });
 
         // 取消确认按钮
-        document.getElementById('cancelConfirmBtn').addEventListener('click', function() {
+        document.getElementById('cancelConfirmBtn').addEventListener('click', function () {
             document.getElementById('confirmModal').classList.add('hidden');
             currentAction = null;
             currentFriendId = null;
         });
 
         // 点击模态框外部关闭
-        document.getElementById('confirmModal').addEventListener('click', function(e) {
+        document.getElementById('confirmModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 this.classList.add('hidden');
             }
@@ -1052,10 +1188,10 @@
     async function handleFriendAction(action, friendId) {
         try {
             let url = '';
-            let data = { friend_id: friendId };
+            let data = {friend_id: friendId};
             let successMsg = '';
 
-            switch(action) {
+            switch (action) {
                 case 'accept':
                     url = '/friends_management/handle_request';
                     data.action = 'accept';
@@ -1128,7 +1264,7 @@
         // 打开添加好友模态框
         [addFriendBtn, initialAddFriendBtn, emptyAddFriendBtn].forEach(btn => {
             if (btn) {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     addFriendModal.classList.remove('hidden');
                     setTimeout(() => {
                         modalContent.classList.remove('scale-95', 'opacity-0');
@@ -1139,7 +1275,7 @@
         });
 
         // 关闭添加好友模态框
-        closeModalBtn.addEventListener('click', function() {
+        closeModalBtn.addEventListener('click', function () {
             modalContent.classList.remove('scale-100', 'opacity-100');
             modalContent.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
@@ -1148,7 +1284,7 @@
         });
 
         // 点击模态框外部关闭
-        addFriendModal.addEventListener('click', function(e) {
+        addFriendModal.addEventListener('click', function (e) {
             if (e.target === this) {
                 modalContent.classList.remove('scale-100', 'opacity-100');
                 modalContent.classList.add('scale-95', 'opacity-0');
@@ -1164,7 +1300,7 @@
         const form = document.getElementById('addFriendForm');
         const sendRequestBtn = document.getElementById('sendRequestBtn');
 
-        form.addEventListener('submit', async function(e) {
+        form.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const usernameInput = document.getElementById('friendUsername');
@@ -1223,7 +1359,7 @@
     function initNotifications() {
         const closeNotificationBtn = document.getElementById('closeNotification');
 
-        closeNotificationBtn.addEventListener('click', function() {
+        closeNotificationBtn.addEventListener('click', function () {
             hideNotification();
         });
     }
