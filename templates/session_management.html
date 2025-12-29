@@ -369,8 +369,6 @@
             flex: 1;
         }
 
-
-
         .dashboard-header h1 {
             font-weight: 600;
             color: var(--text-dark);
@@ -487,6 +485,182 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        /* 聊天类型选择模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-soft);
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-default);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .chat-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--bg-tertiary);
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: var(--transition-default);
+        }
+
+        .chat-option:hover {
+            border-color: var(--accent);
+            background-color: rgba(159, 122, 234, 0.05);
+        }
+
+        .chat-option-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .chat-option-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0 0 0.25rem 0;
+        }
+
+        .chat-option-info p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .friends-list-container {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .friends-list-container.active {
+            display: block;
+        }
+
+        .friends-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-default);
+        }
+
+        .friend-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-name {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .friend-status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--bg-tertiary);
+        }
 
         /* 搜索区域样式优化 */
         .search-container {
@@ -781,6 +955,69 @@
     </div>
 </nav>
 
+<!-- 创建聊天会话模态框 -->
+<div class="modal" id="chatTypeModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Chat</h3>
+            <button class="close-modal" id="closeModal" aria-label="Close modal">×</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="chat-option" id="systemChatOption">
+                <div class="chat-option-icon">
+                    <i class="fa fa-robot" aria-hidden="true"></i>
+                </div>
+                <div class="chat-option-info">
+                    <h3>Chat with System</h3>
+                    <p>Have a conversation with AI assistant</p>
+                </div>
+            </div>
+
+            <div class="chat-option" id="friendChatOption">
+                <div class="chat-option-icon">
+                    <i class="fa fa-user-friends" aria-hidden="true"></i>
+                </div>
+                <div class="chat-option-info">
+                    <h3>Chat with Friend</h3>
+                    <p>Start a conversation with your friend</p>
+                </div>
+            </div>
+
+            <div class="friends-list-container" id="friendsListContainer">
+                <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Select a Friend</h3>
+                <div class="friends-list" id="friendsList">
+                    <!-- 朋友列表将通过JavaScript动态填充 -->
+                    {% for friend in friends %}
+                    <div class="friend-item" data-friend-id="{{ friend.id }}">
+                        <div class="friend-avatar">
+                            {{ friend.username[0].upper() }}
+                        </div>
+                        <div class="friend-info">
+                            <h4 class="friend-name">{{ friend.username }}</h4>
+                            <p class="friend-status">Online</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% if not friends %}
+                    <div class="empty-state" style="padding: 1rem;">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <h4>No friends found</h4>
+                        <p>Add friends to start chatting</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-outline-primary" id="cancelChatCreation">Cancel</button>
+            <button class="btn btn-success" id="confirmChatCreation" disabled>Start Chat</button>
+        </div>
+    </div>
+</div>
+
 <!-- 主布局容器 -->
 <div class="main-container">
     <!-- 左侧侧边栏（功能菜单） -->
@@ -875,9 +1112,9 @@
                         <i class="fa fa-refresh" aria-hidden="true"></i> Reset
                     </button>
                     {% if session.role == 'user' %}
-                    <a href="/start_chat" class="btn btn-success" aria-label="Create new session" tabindex="0">
+                    <button class="btn btn-success" id="createChatBtn" aria-label="Create new session" tabindex="0">
                         <i class="fa fa-plus me-1" aria-hidden="true"></i> Create
-                    </a>
+                    </button>
                     {% endif %}
                 </div>
             </div>
@@ -1074,8 +1311,21 @@
             originalSessions: Array.from(document.querySelectorAll('#sessionTableBody tr')),
             originalPendingSessions: Array.from(document.querySelectorAll('#pendingSessionTableBody tr') || []),
             isLoading: false,
-            apiBaseUrl: '/api/sessions' // 搜索接口基础URL
+            apiBaseUrl: '/api/sessions', // 搜索接口基础URL
+            selectedChatType: null,
+            selectedFriendId: null
         };
+
+        // 聊天类型模态框元素
+        const chatTypeModal = document.getElementById('chatTypeModal');
+        const createChatBtn = document.getElementById('createChatBtn');
+        const closeModal = document.getElementById('closeModal');
+        const cancelChatCreation = document.getElementById('cancelChatCreation');
+        const confirmChatCreation = document.getElementById('confirmChatCreation');
+        const systemChatOption = document.getElementById('systemChatOption');
+        const friendChatOption = document.getElementById('friendChatOption');
+        const friendsListContainer = document.getElementById('friendsListContainer');
+        const friendsList = document.getElementById('friendsList');
 
         // 导航栏滚动效果
         const mainNav = document.getElementById('mainNav');
@@ -1166,6 +1416,107 @@
                 }
             });
         });
+
+        // 聊天类型模态框控制
+        if (createChatBtn && chatTypeModal) {
+            createChatBtn.addEventListener('click', function() {
+                chatTypeModal.classList.add('show');
+                // 重置状态
+                state.selectedChatType = null;
+                state.selectedFriendId = null;
+                confirmChatCreation.disabled = true;
+                // 移除之前的选中状态
+                systemChatOption.style.borderColor = 'var(--bg-tertiary)';
+                friendChatOption.style.borderColor = 'var(--bg-tertiary)';
+                friendsListContainer.classList.remove('active');
+                // 移除朋友选中状态
+                document.querySelectorAll('.friend-item').forEach(item => {
+                    item.style.backgroundColor = '';
+                });
+            });
+        }
+
+        // 关闭模态框
+        function hideModal() {
+            chatTypeModal.classList.remove('show');
+        }
+
+        if (closeModal) {
+            closeModal.addEventListener('click', hideModal);
+        }
+
+        if (cancelChatCreation) {
+            cancelChatCreation.addEventListener('click', hideModal);
+        }
+
+        // 点击模态框外部关闭
+        chatTypeModal.addEventListener('click', function(e) {
+            if (e.target === chatTypeModal) {
+                hideModal();
+            }
+        });
+
+        // 选择聊天类型
+        if (systemChatOption) {
+            systemChatOption.addEventListener('click', function() {
+                state.selectedChatType = 'system';
+                state.selectedFriendId = null;
+                confirmChatCreation.disabled = false;
+
+                // 更新UI状态
+                systemChatOption.style.borderColor = 'var(--accent)';
+                systemChatOption.style.backgroundColor = 'rgba(159, 122, 234, 0.05)';
+                friendChatOption.style.borderColor = 'var(--bg-tertiary)';
+                friendChatOption.style.backgroundColor = '';
+                friendsListContainer.classList.remove('active');
+
+                // 移除朋友选中状态
+                document.querySelectorAll('.friend-item').forEach(item => {
+                    item.style.backgroundColor = '';
+                });
+            });
+        }
+
+        if (friendChatOption) {
+            friendChatOption.addEventListener('click', function() {
+                state.selectedChatType = 'friend';
+                confirmChatCreation.disabled = true; // 需选择具体朋友后才启用
+
+                // 更新UI状态
+                friendChatOption.style.borderColor = 'var(--accent)';
+                friendChatOption.style.backgroundColor = 'rgba(159, 122, 234, 0.05)';
+                systemChatOption.style.borderColor = 'var(--bg-tertiary)';
+                systemChatOption.style.backgroundColor = '';
+                friendsListContainer.classList.add('active');
+            });
+        }
+
+        // 选择朋友
+        document.querySelectorAll('.friend-item').forEach(item => {
+            item.addEventListener('click', function() {
+                state.selectedFriendId = this.dataset.friendId;
+                confirmChatCreation.disabled = false;
+
+                // 更新UI状态
+                document.querySelectorAll('.friend-item').forEach(friend => {
+                    friend.style.backgroundColor = '';
+                });
+                this.style.backgroundColor = 'var(--bg-secondary)';
+            });
+        });
+
+        // 确认创建聊天
+        if (confirmChatCreation) {
+            confirmChatCreation.addEventListener('click', function() {
+                if (state.selectedChatType === 'system') {
+                    // 与系统聊天
+                    window.location.href = '/start_chat?type=system';
+                } else if (state.selectedChatType === 'friend' && state.selectedFriendId) {
+                    // 与朋友聊天
+                    window.location.href = `/start_chat?type=friend&friend_id=${state.selectedFriendId}`;
+                }
+            });
+        }
 
         // ------------------------------
         // 搜索接口集成 - 核心功能
