@@ -1,13 +1,15 @@
-import json
+from flask import redirect, url_for, flash
+from flask_socketio import emit, SocketIO
 
-from flask import render_template, request, redirect, url_for, session, flash, jsonify
-
-from bot import analyze_sentiment, generate_bot_response
+# from app import socketio
+from bot import generate_bot_response
 from models import db, User, Service, Appointment, ChatSession, Message, FriendRelation
-from datetime import datetime, UTC
+from datetime import UTC
 
 
 def init_routes(app):
+    socketio = SocketIO(app)
+
     @app.route('/')
     def index():
         if 'user_id' in session:
@@ -301,25 +303,6 @@ def init_routes(app):
 
         return render_template('chat_sessions.html', sessions=sessions)
 
-    @app.route('/dashboard')
-    def dashboard():
-        if 'user_id' not in session:
-            return redirect(url_for('login'))
-        role = session['role']
-        if role == 'user':
-            services = ChatSession.query.filter_by(user_id=session['user_id']).all()
-            return render_template('chat_sessions.html', services=services)
-        elif role == 'agent':
-            sessions = ChatSession.query \
-                .filter(ChatSession.agent_id.is_(None)) \
-                .order_by(ChatSession.start_time.desc()) \
-                .all()
-            return render_template('agent_dashboard.html', sessions=sessions)
-        elif role == 'admin':
-            users = User.query.all()
-            services = Service.query.all()
-            sessions = ChatSession.query.all()
-            return render_template('admin_dashboard.html', users=users, services=services, sessions=sessions)
 
     @app.route('/session_management')
     def session_management():
@@ -950,3 +933,109 @@ def init_routes(app):
         # 获取会话消息
         messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
         return render_template('chat.html', session_id=session_id, messages=messages)
+
+    from flask import request, jsonify, session, render_template
+    from datetime import datetime
+    from bot import analyze_sentiment, extract_keywords, generate_summary
+
+    # AI分析页面路由（展示分析结果）
+    @app.route('/ai_analysis')
+    def ai_analysis():
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+        # 获取可选参数：session_id（指定分析某个会话）
+        session_id = request.args.get('session_id')
+        analysis_data = {}
+
+        if session_id:
+            # 分析指定会话的消息
+            from models import ChatSession, Message
+            chat_session = ChatSession.query.get(session_id)
+            if chat_session:
+                # 校验权限（仅会话参与者/管理员可查看）
+                user_id = session['user_id']
+                if not (chat_session.user_id == user_id or chat_session.agent_id == user_id or session[
+                    'role'] == 'admin'):
+                    flash('No permission to view this session analysis', 'error')
+                    return redirect(url_for('dashboard'))
+
+                # 获取该会话所有消息
+                messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
+                if messages:
+                    # 提取所有消息文本
+                    all_text = ' '.join([msg.text for msg in messages])
+                    # 计算整体情感均值
+                    avg_sentiment = sum([msg.sentiment for msg in messages]) / len(messages)
+                    # 提取关键词
+                    keywords = extract_keywords(all_text)
+                    # 生成会话摘要
+                    summary = generate_summary(all_text)
+
+                    analysis_data = {
+                        'session_id': session_id,
+                        'session_start': chat_session.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+                        'message_count': len(messages),
+                        'avg_sentiment': round(avg_sentiment, 2),
+                        'keywords': keywords,
+                        'summary': summary,
+                        'sentiment_trend': [{'time': msg.timestamp.strftime('%H:%M'), 'value': msg.sentiment} for msg in
+                                            messages]
+                    }
+
+        return render_template('ai_analysis.html', analysis_data=analysis_data)
+
+    # AI分析接口（供前端AJAX调用）
+    @app.route('/api/ai_analysis', methods=['POST'])
+    def api_ai_analysis():
+        try:
+            data = request.json
+            text = data.get('text', '')
+            if not text:
+                return jsonify({'success': False, 'message': 'Text is required'}), 400
+
+            # 执行AI分析
+            sentiment = analyze_sentiment(text)
+            keywords = extract_keywords(text)
+
+            return jsonify({
+                'success': True,
+                'sentiment': round(sentiment, 2),
+                'keywords': keywords,
+                'sentiment_label': get_sentiment_label(sentiment)
+            })
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+    # 辅助函数：将情感值转换为标签
+    def get_sentiment_label(sentiment):
+        if sentiment > 0.5:
+            return 'Positive'
+        elif sentiment > 0:
+            return 'Slightly Positive'
+        elif sentiment < -0.5:
+            return 'Negative'
+        elif sentiment < 0:
+            return 'Slightly Negative'
+        else:
+            return 'Neutral'
+
+    # Socket.IO AI分析事件（实时分析）
+    @socketio.on('ai_analysis')
+    def handle_ai_analysis(data):
+        text = data.get('text', '')
+        if not text:
+            emit('ai_analysis_result', {'success': False, 'message': 'Text is required'})
+            return
+
+        try:
+            sentiment = analyze_sentiment(text)
+            keywords = extract_keywords(text)
+            emit('ai_analysis_result', {
+                'success': True,
+                'sentiment': round(sentiment, 2),
+                'keywords': keywords,
+                'label': get_sentiment_label(sentiment)
+            })
+        except Exception as e:
+            emit('ai_analysis_result', {'success': False, 'message': str(e)})

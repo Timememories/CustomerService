@@ -2,9 +2,807 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analysis | Emotion Pal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            /* 主色调 */
+            --accent: #9F7AEA;
+            --accent-dark: #805AD5;
+            --accent-light: #E8F4F8;
+            --accent-secondary: #FDF2F8;
+
+            /* 功能色 */
+            --primary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+
+            /* 文本颜色 */
+            --text-main: #4A5568;
+            --text-dark: #2c3e50;
+            --text-muted: #64748B;
+            --text-light: #94A3B8;
+
+            /* 背景色 */
+            --bg-primary: #ffffff;
+            --bg-secondary: #F8FAFC;
+            --bg-tertiary: #E2E8F0;
+
+            /* 阴影 */
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 4px 12px rgba(159, 122, 234, 0.3);
+            --nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+            /* 过渡效果 */
+            --transition-default: all 0.2s ease;
+            --transition-btn: all 0.3s ease;
+        }
+
+        /* 顶部导航栏样式 */
+        .main-nav {
+            background-color: var(--bg-primary);
+            box-shadow: var(--nav-shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0.75rem 0;
+            transition: var(--transition-default);
+        }
+
+        .main-nav.scrolled {
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 1.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: var(--transition-default);
+        }
+
+        .brand:hover {
+            color: var(--accent);
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(159, 122, 234, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+
+        .brand-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* 用户信息区域 */
+        /* 用户信息区域 - 统一下拉菜单样式 */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+        .user-info {
+            text-align: right;
+            /*display: none;*/
+        }
+
+        @media (min-width: 768px) {
+            .user-info {
+                display: block;
+            }
+        }
+
+        .username {
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* 头像下拉容器 - 统一样式 */
+        .avatar-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-default);
+            border: 2px solid transparent;
+            overflow: hidden;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-hover);
+        }
+        /* 头像图片样式 */
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 下拉菜单样式 - 统一优化 */
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            width: 200px;
+            background: var(--dropdown-bg);
+            border-radius: 12px;
+            box-shadow: var(--dropdown-shadow);
+            border: 1px solid var(--dropdown-border);
+            padding: 0.75rem 0;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        /* 下拉菜单显示状态 */
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+                /* 下拉菜单项样式 */
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: var(--transition-default);
+        }
+        .dropdown-item:hover {
+            background-color: var(--dropdown-hover);
+            color: var(--accent-dark);
+            padding-left: 1.5rem;
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .dropdown-item:hover i {
+            color: var(--accent-dark);
+        }
+
+        /* 下拉菜单分割线 */
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--dropdown-border);
+            margin: 0.5rem 0;
+        }
+
+        /* 移动端菜单按钮 */
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+        body {
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent-secondary) 100%);
+            min-height: 100vh;
+            padding-top: 80px;
+            padding-bottom: 2rem;
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* 主布局容器 */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* 左侧侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 7rem;
+            flex-shrink: 0;
+            transition: var(--transition-default);
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu-item {
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+        }
+
+        .sidebar-menu-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: var(--transition-default);
+        }
+
+        .sidebar-menu-link:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-dark);
+        }
+
+        .sidebar-menu-link.active {
+            background-color: var(--accent-light);
+            color: var(--accent-dark);
+            font-weight: 500;
+        }
+
+        .sidebar-menu-link i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* 主内容区 */
+        .content-area {
+            flex: 1;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dashboard-header h1 i {
+            color: var(--accent);
+        }
+
+        .section-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            transition: var(--transition-default);
+        }
+
+        .section-card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-card h2, .section-card h3 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .section-card h2 i, .section-card h3 i {
+            color: var(--accent);
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: var(--transition-btn);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .form-control {
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: var(--transition-default);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
+            outline: none;
+        }
+
+        /* 情感标签样式 */
+        .sentiment-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition-default);
+        }
+
+        .sentiment-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sentiment-positive {
+            background: rgba(46, 204, 113, 0.15);
+            color: #27ae60;
+        }
+        .sentiment-negative {
+            background: rgba(231, 76, 60, 0.15);
+            color: #c0392b;
+        }
+        .sentiment-neutral {
+            background: rgba(52, 152, 219, 0.15);
+            color: #2980b9;
+        }
+
+        /* 关键词标签 */
+        .keyword-tag {
+            display: inline-block;
+            background: var(--bg-secondary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            margin: 0.3rem;
+            transition: var(--transition-default);
+            border: 1px solid transparent;
+        }
+
+        .keyword-tag:hover {
+            background-color: var(--accent-light);
+            color: var(--accent-dark);
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        /* 分析结果区域 */
+        #real-time-result {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            border-left: 4px solid var(--success);
+            color: #065F46;
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            color: #991B1B;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- 顶部导航栏 -->
+<nav class="main-nav" id="mainNav">
+    <div class="container nav-container">
+        <!-- 品牌标识 -->
+        <a href="/session_management" class="brand" aria-label="Emotion Pal Dashboard">
+            <div class="brand-icon">
+                <i class="fa fa-heart" aria-hidden="true"></i>
+            </div>
+            <span class="brand-name">Emotion Pal</span>
+        </a>
 
+        <!-- 用户信息区域（统一下拉菜单） -->
+        <div class="user-section">
+            <div class="user-info">
+                <div class="username" aria-label="Username">{{ session.username }}</div>
+                <div class="user-role" aria-label="User role">{{ session.role | capitalize }}</div>
+            </div>
+
+            <!-- 头像下拉容器（统一交互） -->
+            <div class="avatar-dropdown" id="avatarDropdown" aria-haspopup="true" aria-expanded="false">
+                <div class="user-avatar" title="Click to open menu" tabindex="0" role="button" aria-label="User menu">
+                    <!-- 支持头像图片或首字母兜底 -->
+                    {% if session.avatar and session.avatar != '' %}
+                    <img
+                            src="{{ session.avatar }}"
+                            alt="{{ session.username }}'s avatar"
+                            class="avatar-img"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='{{ session.username[0].upper() }}'"
+                    >
+                    {% else %}
+                    {{ session.username[0].upper() }}
+                    {% endif %}
+                </div>
+
+                <!-- 下拉菜单（统一样式） -->
+                <div class="dropdown-menu" id="dropdownMenu" aria-labelledby="avatarDropdown">
+                    <a href="/user_center" class="dropdown-item" aria-label="Go to user center" tabindex="0">
+                        <i class="fa fa-user-circle" aria-hidden="true"></i>
+                        <span>User Center</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="/logout" class="dropdown-item" aria-label="Logout from account" tabindex="0">
+                        <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu" tabindex="0">
+                <i class="fa fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+    <div class="main-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" aria-label="Function menu">
+        <h3 class="sidebar-title">Function Menu</h3>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="/session_management" class="sidebar-menu-link" aria-current="page"
+                   aria-label="Session management" tabindex="0">
+                    <i class="fa fa-comments" aria-hidden="true"></i>
+                    <span>Session Management</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/friends_management" class="sidebar-menu-link" aria-label="Friends management" tabindex="0">
+                    <i class="fa fa-user-friends" aria-hidden="true"></i>
+                    <span>Friend Management</span>
+                </a>
+            </li>
+            {% if session.role == 'admin' %}
+            <li class="sidebar-menu-item">
+                <a href="/user_management" class="sidebar-menu-link" aria-label="User management" tabindex="0">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <span>User Management</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="sidebar-menu-item">
+                <a href="/ai_analysis" class="sidebar-menu-link active" aria-label="AI analysis" tabindex="0">
+                    <i class="fa fa-brain" aria-hidden="true"></i>
+                    <span>AI Analysis</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/user_center" class="sidebar-menu-link" aria-label="User center" tabindex="0">
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
+                    <span>User Center</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+        <!-- 主内容区 -->
+        <main class="content-area">
+            <div class="dashboard-header">
+                <h1><i class="fas fa-robot"></i> AI Chat Analysis</h1>
+            </div>
+
+            <!-- 实时文本分析工具 -->
+            <div class="section-card">
+                <h3><i class="fas fa-bolt"></i> Real-Time Text Analysis</h3>
+                <div class="mb-3">
+                    <textarea id="analysis-text" class="form-control" rows="3" placeholder="Enter text to analyze..."></textarea>
+                </div>
+                <button id="analyze-btn" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Run AI Analysis
+                </button>
+                <div id="real-time-result" class="mt-3"></div>
+            </div>
+
+            <!-- 会话分析结果（如果有session_id） -->
+            {% if analysis_data %}
+            <div class="section-card">
+                <h3><i class="fas fa-history"></i> Session Analysis - #{{ analysis_data.session_id }}</h3>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h5><i class="fas fa-info-circle"></i> Session Info</h5>
+                            <p><strong>Start Time:</strong> {{ analysis_data.session_start }}</p>
+                            <p><strong>Total Messages:</strong> {{ analysis_data.message_count }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h5><i class="fas fa-heart"></i> Average Sentiment</h5>
+                            {% set sentiment_label = 'positive' if analysis_data.avg_sentiment > 0 else 'negative' if analysis_data.avg_sentiment < 0 else 'neutral' %}
+                            <div class="sentiment-badge sentiment-{{ sentiment_label }}">
+                                {{ analysis_data.avg_sentiment }} ({{ sentiment_label|capitalize }})
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-tags"></i> Key Words</h5>
+                        <div>
+                            {% for keyword in analysis_data.keywords %}
+                            <span class="keyword-tag">{{ keyword }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-file-text"></i> Session Summary</h5>
+                        <p>{{ analysis_data.summary }}</p>
+                    </div>
+                </div>
+
+                <!-- 情感趋势图表 -->
+                <div class="mt-4">
+                    <h5><i class="fas fa-chart-line"></i> Sentiment Trend</h5>
+                    <canvas id="sentiment-chart" height="200"></canvas>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+    <script>
+        // 初始化Socket.IO连接
+        const socket = io('http://' + window.location.hostname + ':5001');
+
+        // 实时分析按钮点击事件
+        document.getElementById('analyze-btn').addEventListener('click', function() {
+            const text = document.getElementById('analysis-text').value.trim();
+            if (!text) {
+                alert('Please enter text to analyze');
+                return;
+            }
+
+            // 通过Socket.IO实时分析
+            socket.emit('ai_analysis', { text: text });
+        });
+
+        // 接收Socket.IO分析结果
+        socket.on('ai_analysis_result', function(data) {
+            showAnalysisResult(data);
+        });
+
+        // 显示分析结果
+        function showAnalysisResult(data) {
+            const resultEl = document.getElementById('real-time-result');
+            if (!data.success) {
+                resultEl.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                return;
+            }
+
+            const sentimentLabel = data.label.toLowerCase();
+            resultEl.innerHTML = `
+                <div class="alert alert-success">
+                    <h6>Analysis Result</h6>
+                    <p><strong>Sentiment Score:</strong> <span class="sentiment-badge sentiment-${sentimentLabel}">${data.sentiment} (${data.label})</span></p>
+                    <p><strong>Key Words:</strong> ${data.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}</p>
+                </div>
+            `;
+        }
+
+        // 绘制情感趋势图表（如果有数据）
+        {% if analysis_data and analysis_data.sentiment_trend %}
+        const trendData = {{ analysis_data.sentiment_trend|tojson }};
+        const ctx = document.getElementById('sentiment-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData.map(item => item.time),
+                datasets: [{
+                    label: 'Sentiment Score',
+                    data: trendData.map(item => item.value),
+                    borderColor: '#9F7AEA',
+                    backgroundColor: 'rgba(159, 122, 234, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        min: -1,
+                        max: 1,
+                        title: { display: true, text: 'Sentiment (-1 to 1)' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Time' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                }
+            }
+        });
+        {% endif %}
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.main-nav');
+            if (window.scrollY > 10) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+            // 移动端菜单切换
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('show');
+                const expanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+                mobileMenuBtn.setAttribute('aria-expanded', !expanded);
+                mobileMenuBtn.innerHTML = expanded ?
+                    '<i class="fa fa-bars" aria-hidden="true"></i>' :
+                    '<i class="fa fa-times" aria-hidden="true"></i>';
+            });
+        }
+
+        // 头像下拉菜单逻辑（统一交互）
+        const avatarDropdown = document.getElementById('avatarDropdown');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        if (avatarDropdown && dropdownMenu) {
+            // 点击头像切换下拉菜单
+            avatarDropdown.addEventListener('click', function (e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+                avatarDropdown.setAttribute('aria-expanded', dropdownMenu.classList.contains('show'));
+            });
+
+            // 点击页面其他区域关闭下拉菜单
+            document.addEventListener('click', function () {
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                    avatarDropdown.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // 阻止下拉菜单内部点击关闭
+            dropdownMenu.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+
+            // 键盘支持 - 头像下拉菜单
+            avatarDropdown.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    dropdownMenu.classList.toggle('show');
+                    avatarDropdown.setAttribute('aria-expanded', dropdownMenu.classList.contains('show'));
+                }
+            });
+        }
+    </script>
 </body>
 </html>

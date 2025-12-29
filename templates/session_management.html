@@ -903,7 +903,7 @@
 <nav class="main-nav" id="mainNav">
     <div class="container nav-container">
         <!-- 品牌标识 -->
-        <a href="/dashboard" class="brand" aria-label="Emotion Pal Dashboard">
+        <a href="/session_management" class="brand" aria-label="Emotion Pal Dashboard">
             <div class="brand-icon">
                 <i class="fa fa-heart" aria-hidden="true"></i>
             </div>
@@ -1051,14 +1051,6 @@
                     <span>AI Analysis</span>
                 </a>
             </li>
-            {% if session.role in ['agent', 'admin'] %}
-            <li class="sidebar-menu-item">
-                <a href="/emotion_statistics" class="sidebar-menu-link" aria-label="Emotion statistics" tabindex="0">
-                    <i class="fa fa-chart-pie" aria-hidden="true"></i>
-                    <span>Emotion Statistics</span>
-                </a>
-            </li>
-            {% endif %}
             <li class="sidebar-menu-item">
                 <a href="/user_center" class="sidebar-menu-link" aria-label="User center" tabindex="0">
                     <i class="fa fa-user-circle" aria-hidden="true"></i>

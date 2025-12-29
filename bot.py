@@ -1,9 +1,12 @@
 import re
+from collections import Counter
+
 from ollama import Client
 from deep_translator import GoogleTranslator
 from textblob.exceptions import TranslatorError
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from langdetect import detect, LangDetectException  # 替代TextBlob的语言检测
+
 analyzer = SentimentIntensityAnalyzer()
 
 client = Client(
@@ -33,7 +36,7 @@ def analyze_sentiment(text):
             # 使用deep-translator翻译（稳定且不易限流）
             processed_text = GoogleTranslator(
                 source=detected_lang,  # 源语言（ru=俄语，bg=保加利亚语）
-                target='en'            # 目标语言：英语
+                target='en'  # 目标语言：英语
             ).translate(text)
     except LangDetectException:
         # 语言检测失败：使用原文本
@@ -86,3 +89,25 @@ Please respond appropriately to the user's message, keeping your tone consistent
 
     except Exception as e:
         return f"Извините, произошла ошибка при обращении к сервису. Пожалуйста, попробуйте позже. Ошибка: {str(e)}"
+
+
+def extract_keywords(text, top_n=5):
+    # 清理文本
+    text = re.sub(r'[^\w\s]', '', text.lower())
+    # 过滤停用词
+    stop_words = ['the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'in', 'on', 'at']
+    words = [word for word in text.split() if word not in stop_words and len(word) > 2]
+    # 统计词频
+    word_counts = Counter(words)
+    return [word for word, _ in word_counts.most_common(top_n)]
+
+
+# 会话摘要生成（简单版）
+def generate_summary(text, max_length=100):
+    sentences = re.split(r'[.!?]', text)
+    # 取前N个非空句子
+    valid_sentences = [s.strip() for s in sentences if s.strip()]
+    summary = ' '.join(valid_sentences[:3])
+    if len(summary) > max_length:
+        summary = summary[:max_length] + '...'
+    return summary if summary else 'No content to summarize'
