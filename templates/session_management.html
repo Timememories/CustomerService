@@ -1570,8 +1570,8 @@
             if (agent) params.append('agent_id', agent);
 
             // 添加用户角色筛选（从模板变量获取）
-            params.append('role', '{{ session.role }}');
-            params.append('user_id', '{{ session.id }}');
+            // params.append('role', '{{ session.role }}');
+            // params.append('user_id', '{{ session.id }}');
 
             return params;
         }

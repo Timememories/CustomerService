@@ -34,7 +34,7 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC),
                            comment='更新时间')
     last_login_at = db.Column(db.DateTime, nullable=True, comment='最后登录时间')
-
+    # 是否删除
     # 关联关系（明确外键，消除歧义）
     # 1. 用户发起的聊天会话（关联 ChatSession.user_id）
     initiated_chat_sessions = db.relationship(

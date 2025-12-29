@@ -1,10 +1,9 @@
-from flask import redirect, url_for, flash
+from flask import redirect, url_for, flash,request, jsonify, session, render_template
 from flask_socketio import emit, SocketIO
 
-# from app import socketio
-from bot import generate_bot_response
+from bot import generate_bot_response,analyze_sentiment, extract_keywords, generate_summary
 from models import db, User, Service, Appointment, ChatSession, Message, FriendRelation
-from datetime import UTC
+from datetime import UTC,datetime
 
 
 def init_routes(app):
@@ -537,10 +536,13 @@ def init_routes(app):
             return redirect(url_for('login'))
         user = User.query.get(user_id)
         if user:
-            db.session.delete(user)
+            user.is_deleted = True
+            user.updated_at = datetime.now()
+            if user_id == session['user_id']:
+                return redirect(url_for('user_management'))
             db.session.commit()
             flash('User deleted')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('user_management'))
 
     @app.route('/friends_management')
     def get_friends():
@@ -934,9 +936,6 @@ def init_routes(app):
         messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
         return render_template('chat.html', session_id=session_id, messages=messages)
 
-    from flask import request, jsonify, session, render_template
-    from datetime import datetime
-    from bot import analyze_sentiment, extract_keywords, generate_summary
 
     # AI分析页面路由（展示分析结果）
     @app.route('/ai_analysis')
@@ -1039,3 +1038,202 @@ def init_routes(app):
             })
         except Exception as e:
             emit('ai_analysis_result', {'success': False, 'message': str(e)})
+
+    @app.route('/user_management')
+    def user_management():
+        if 'user_id' not in session or session['role'] != 'admin':
+            flash('Permission denied', 'error')
+            return redirect(url_for('login'))
+        users = User.query.filter(User.is_deleted==False).all()
+        return render_template('user_management.html', users=users)
+
+    # 用户管理相关路由 - 仅管理员可访问
+    @app.route('/admin/users/add', methods=['GET', 'POST'])
+    def admin_add_user():
+        # 权限验证
+        if 'user_id' not in session or session.get('role') != 'admin':
+            flash('Permission denied!', 'error')
+            return redirect(url_for('login'))
+
+        if request.method == 'POST':
+            # 获取表单数据
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '').strip()
+            role = request.form.get('role', 'user').strip()
+
+            # 基础验证
+            if not username or not password:
+                flash('Username and password are required!', 'error')
+                return render_template('admin/add_user.html')
+
+            if role not in ['admin', 'agent', 'user']:
+                flash('Invalid role type!', 'error')
+                return render_template('admin/add_user.html')
+
+            # 检查用户名是否已存在
+            if User.query.filter_by(username=username).first():
+                flash('Username already exists!', 'error')
+                return render_template('admin/add_user.html')
+
+            try:
+                # 创建新用户
+                new_user = User(
+                    username=username,
+                    password=password,  # 假设模型内部会自动加密
+                    role=role
+                )
+                db.session.add(new_user)
+                db.session.commit()
+                flash(f'User {username} added successfully!', 'success')
+                return redirect(url_for('dashboard'))  # 重定向到管理员面板
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error adding user: {str(e)}', 'error')
+
+        # GET请求：显示添加用户表单
+        return render_template('admin/add_user.html')
+
+    @app.route('/admin/edit_user/<int:user_id>', methods=['GET', 'POST'])
+    def admin_edit_user(user_id):
+        # 权限验证
+        if 'user_id' not in session or session.get('role') != 'admin':
+            flash('Permission denied!', 'error')
+            return redirect(url_for('login'))
+
+        # 获取用户信息
+        user = User.query.get_or_404(user_id)
+
+        # 不允许修改当前登录管理员自己的角色
+        if user_id == session['user_id'] and request.method == 'POST' and request.form.get('role') != 'admin':
+            flash("You can't change your own role to non-admin!", 'error')
+            return url_for('user_management')
+
+        if request.method == 'POST':
+            # 获取表单数据
+            new_username = request.form.get('username', '').strip()
+            new_email = request.form.get('email', '').strip()
+            new_role = request.form.get('role', 'user').strip()
+            new_password = request.form.get('password', '').strip()
+
+            # 验证角色
+            if new_role not in ['admin', 'agent', 'user']:
+                flash('Invalid role type!', 'error')
+                return redirect(url_for('user_management'))
+
+            try:
+                # 更新用户名（如果有变化且不重复）
+                if new_username and new_username != user.username:
+                    if User.query.filter_by(username=new_username).first():
+                        flash('Username already exists!', 'error')
+                        return redirect(url_for('user_management'))
+                    user.username = new_username
+
+                # 更新角色
+                user.role = new_role
+                user.email = new_email
+
+                # 更新密码（如果提供了新密码）
+                if new_password:
+                    user.set_password(new_password)  # 假设模型有此方法
+
+                user.updated_at = datetime.now()
+                db.session.commit()
+                flash('User updated successfully!', 'success')
+                return redirect(url_for('user_management'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error updating user: {str(e)}', 'error')
+
+        # GET请求：显示编辑表单
+        return redirect(url_for('user_management'))
+
+    # API: 获取所有用户数据（用于前端表格）
+    @app.route('/api/admin/users')
+    def api_get_users():
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({'error': 'Permission denied!'}), 403
+
+        users = User.query.all()
+        return jsonify([{
+            'id': user.id,
+            'username': user.username,
+            'role': user.role,
+            'created_at': user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
+            'updated_at': user.updated_at.strftime('%Y-%m-%d %H:%M:%S') if user.updated_at else None
+        } for user in users])
+
+    @app.route('/api/sessions')
+    def api_get_sessions():
+        # 验证用户登录状态
+        if 'user_id' not in session:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # 获取查询参数
+        status = request.args.get('status', 'all')  # active/ended/all
+        role_filter = request.args.get('role')  # 可选角色筛选
+        user_id_filter = request.args.get('user_id')  # 可选用户ID筛选
+
+        # 基础查询
+        query = ChatSession.query
+
+        # 状态筛选
+        if status == 'active':
+            query = query.filter(ChatSession.end_time.is_(None))
+        elif status == 'ended':
+            query = query.filter(ChatSession.end_time.isnot(None))
+
+        # 角色筛选（限制只能查看有权访问的会话）
+        current_role = session['role']
+        current_user_id = session['user_id']
+
+        if current_role == 'user':
+            # 普通用户只能查看自己的会话
+            query = query.filter(ChatSession.user_id == current_user_id)
+        elif current_role == 'agent':
+            # 客服可以查看自己处理的和未分配的会话
+            query = query.filter(
+                (ChatSession.agent_id == current_user_id) |
+                (ChatSession.agent_id.is_(None))
+            )
+
+        # 额外的用户ID筛选（如果提供）
+        if user_id_filter and current_role in ['admin', 'agent']:
+            query = query.filter(ChatSession.user_id == user_id_filter)
+
+        # 角色筛选（如果提供且当前用户有权限）
+        if role_filter and current_role == 'admin':
+            # 管理员可以按用户角色筛选会话
+            # 先获取该角色的所有用户ID
+            role_user_ids = [user.id for user in User.query.filter_by(role=role_filter).all()]
+            query = query.filter(ChatSession.user_id.in_(role_user_ids))
+
+        # 按创建时间倒序排序
+        query = query.order_by(ChatSession.start_time.desc())
+
+        # 执行查询
+        sessions = query.all()
+
+        # 构建响应数据
+        result = []
+        for sess in sessions:
+            # 获取最后一条消息
+            last_msg = Message.query.filter_by(session_id=sess.id).order_by(Message.timestamp.desc()).first()
+
+            # 获取用户信息
+            user = User.query.get(sess.user_id) if sess.user_id else None
+            agent = User.query.get(sess.agent_id) if sess.agent_id else None
+
+            result.append({
+                'id': sess.id,
+                'user_id': sess.user_id,
+                'user_name': user.username if user else None,
+                'agent_id': sess.agent_id,
+                'agent_name': agent.username if agent else None,
+                'start_time': sess.start_time.isoformat() if sess.start_time else None,
+                'end_time': sess.end_time.isoformat() if sess.end_time else None,
+                'status': 'active' if not sess.end_time else 'ended',
+                'last_message': last_msg.text if last_msg else None,
+                'last_message_time': last_msg.timestamp.isoformat() if last_msg else None
+            })
+
+        return jsonify(result)
