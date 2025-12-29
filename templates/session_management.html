@@ -983,19 +983,19 @@
                     <p>Start a conversation with your friend</p>
                 </div>
             </div>
-
             <div class="friends-list-container" id="friendsListContainer">
                 <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Select a Friend</h3>
                 <div class="friends-list" id="friendsList">
                     <!-- 朋友列表将通过JavaScript动态填充 -->
                     {% for friend in friends %}
-                    <div class="friend-item" data-friend-id="{{ friend.id }}">
+                    <div class="friend-item" data-friend-id="{{friend.friend_id }}">
                         <div class="friend-avatar">
-                            {{ friend.username[0].upper() }}
+                            <img src="{{ friend.friend.avatar}}" alt="{{ friend.friend.username }}'s avatar" class="avatar-img" loading="lazy">
                         </div>
                         <div class="friend-info">
-                            <h4 class="friend-name">{{ friend.username }}</h4>
-                            <p class="friend-status">Online</p>
+                            <h4 class="friend-name">{{friend.friend.username}}</h4>
+                            <p class="friend-status">{{friend.friend.updated_at}}
+                            </p>
                         </div>
                     </div>
                     {% endfor %}
@@ -1288,6 +1288,7 @@
 </div>
 
 <script>
+
     // 修复ES6兼容 - padStart polyfill
     if (!String.prototype.padStart) {
         String.prototype.padStart = function padStart(targetLength, padString) {

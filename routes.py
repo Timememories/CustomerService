@@ -1,3 +1,5 @@
+import json
+
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 
 from bot import analyze_sentiment, generate_bot_response
@@ -367,12 +369,38 @@ def init_routes(app):
                 sess.average_sentiment = sentiment_sum / len(all_msgs)
             else:
                 sess.average_sentiment = 0
-
+        friend_relations = FriendRelation.query.filter(
+            db.or_(
+                FriendRelation.user_id == user_id,
+                FriendRelation.friend_id == user_id,
+                FriendRelation.status == 'accepted'
+            )
+        ).all()
+        relation_dicts = []
+        for rel in friend_relations:
+            # 提取需要返回的字段，处理特殊类型（如datetime）
+            rel_dict = {
+                'id': rel.id,
+                'user_id': rel.user_id,
+                'friend_id': rel.friend_id,
+                'status': rel.status,
+                'user_name': rel.user.username,
+                'friend_name': rel.friend.username
+            }
+            # 额外优化：识别“好友ID”（区分当前用户是user_id还是friend_id）
+            rel_dict['friend_id_target'] = rel.friend_id if rel.user_id == user_id else rel.user_id
+            relation_dicts.append(rel_dict)
+        print(pending_sessions)
+        print(my_sessions)
+        print(agents)
+        print(relation_dicts)
+        print(friend_relations)
         return render_template(
             'session_management.html',
             my_sessions=my_sessions,
             pending_sessions=pending_sessions,
-            agents=agents
+            agents=agents,
+            friends=friend_relations,  # 将关系列表转换为JSON字符串relation_dicts
         )
 
     @app.route('/end_chat/<int:session_id>')
