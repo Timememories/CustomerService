@@ -105,7 +105,7 @@
             var msgDiv = document.createElement('div');
 
             // Определяем тип отправителя
-            let msgClass = 'message other';
+            // let msgClass = 'message other';
             let showSentiment = false;
             if (data.sender === '{{ session.username }}') {
                 msgClass = 'message user';
@@ -144,7 +144,7 @@
                 {% for msg in messages %}
                     {% set sender_name = msg.sender.username if msg.sender else 'Bot' %}
                     {% set is_user = (sender_name == session.username) %}
-                    {% set msg_class = 'message user' if is_user else 'message bot' if sender_name == 'Bot' else 'message other' %}
+                    {% set msg_class = 'message user' if is_user else 'message bot' if sender_name == 'Bot' %}
 
                     {% set emoji = '' %}
                     {% set sentiment_part = '' %}
@@ -169,8 +169,7 @@
                        onkeyup="if(event.keyCode === 13) sendMessage();">
                 <button class="btn btn-primary" onclick="sendMessage()">Send</button>
             </div>
-
-            <a href="/dashboard" class="btn btn-secondary w-100">Back to Dashboard</a>
+            <a href="/session_management" class="btn btn-secondary w-100">Back To Session Management</a>
         </div>
     </div>
 

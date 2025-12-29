@@ -524,15 +524,15 @@ def init_routes(app):
             flash('Rated successfully')
         return redirect(url_for('dashboard'))
 
-    @app.route('/start_chat', methods=['POST'])
-    def start_chat():
-        if 'user_id' not in session or session['role'] != 'user':
-            return redirect(url_for('login'))
-        chat_session = ChatSession(user_id=session['user_id'])
-        db.session.add(chat_session)
-        db.session.commit()
-        session['current_session'] = chat_session.id
-        return redirect(url_for('chat', session_id=chat_session.id))
+    # @app.route('/start_chat', methods=['POST'])
+    # def start_chat():
+    #     if 'user_id' not in session or session['role'] != 'user':
+    #         return redirect(url_for('login'))
+    #     chat_session = ChatSession(user_id=session['user_id'])
+    #     db.session.add(chat_session)
+    #     db.session.commit()
+    #     session['current_session'] = chat_session.id
+    #     return redirect(url_for('chat', session_id=chat_session.id))
 
     @app.route('/join_chat/<int:session_id>')
     def join_chat(session_id):
@@ -545,17 +545,17 @@ def init_routes(app):
         session['current_session'] = session_id
         return redirect(url_for('chat', session_id=session_id))
 
-    @app.route('/chat/<int:session_id>')
-    def chat(session_id):
-        if 'user_id' not in session:
-            return redirect(url_for('login'))
-        chat_session = ChatSession.query.get(session_id)
-        if not chat_session or (session['role'] == 'user' and chat_session.user_id != session['user_id']) or (
-                session['role'] == 'agent' and chat_session.agent_id != session['user_id']):
-            flash('Access denied')
-            return redirect(url_for('dashboard'))
-        messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
-        return render_template('chat.html', session_id=session_id, messages=messages, role=session['role'])
+    # @app.route('/chat/<int:session_id>')
+    # def chat(session_id):
+    #     if 'user_id' not in session:
+    #         return redirect(url_for('login'))
+    #     chat_session = ChatSession.query.get(session_id)
+    #     if not chat_session or (session['role'] == 'user' and chat_session.user_id != session['user_id']) or (
+    #             session['role'] == 'agent' and chat_session.agent_id != session['user_id']):
+    #         flash('Access denied')
+    #         return redirect(url_for('dashboard'))
+    #     messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
+    #     return render_template('chat.html', session_id=session_id, messages=messages, role=session['role'])
 
     @app.route('/admin/add_service', methods=['POST'])
     def add_service():
@@ -833,3 +833,137 @@ def init_routes(app):
             "friend_relations": relation_dicts,
             "current_user_id": current_user_id
         }), 200
+
+    @app.route('/start_chat', methods=['GET', 'POST'])
+    def start_chat():
+        if 'user_id' not in session:
+            flash('Please login first!', 'error')
+            return redirect(url_for('login'))
+
+        # 支持GET参数（如/start_chat?type=system）和表单提交两种方式
+        chat_type = request.args.get('type', request.form.get('type', 'system'))
+        user_id = session['user_id']
+        new_session = None
+
+        try:
+            if chat_type == 'system':
+                # 创建系统聊天会话（客服处理）
+                new_session = ChatSession(
+                    user_id=user_id,
+                    agent_id=None,  # 初始无客服分配
+                    start_time=datetime.now(UTC),
+                    end_time=None,
+                    status='active'
+                )
+                db.session.add(new_session)
+                db.session.commit()
+
+                # 系统自动发送欢迎消息
+                welcome_msg = Message(
+                    session_id=new_session.id,
+                    sender_id=0,  # 系统消息标识
+                    receiver_id=None,
+                    text="Hello! How can we assist you today?",
+                    timestamp=datetime.now(UTC),
+                    sentiment=1.0,
+                    message_type='text'
+                )
+                db.session.add(welcome_msg)
+                db.session.commit()
+
+            elif chat_type == 'friend':
+                # 从GET参数获取好友ID（兼容表单提交）
+                friend_id = request.args.get('friend_id', request.form.get('friend_id'))
+                if not friend_id:
+                    flash('Friend ID is required!', 'error')
+                    return redirect(url_for('session_management'))
+
+                try:
+                    friend_id = int(friend_id)
+                except ValueError:
+                    flash('Invalid friend ID format!', 'error')
+                    return redirect(url_for('session_management'))
+
+                # 验证好友关系
+                friend_relation = FriendRelation.query.filter(
+                    db.or_(
+                        db.and_(
+                            FriendRelation.user_id == user_id,
+                            FriendRelation.friend_id == friend_id,
+                            FriendRelation.status == 'accepted'
+                        ),
+                        db.and_(
+                            FriendRelation.user_id == friend_id,
+                            FriendRelation.friend_id == user_id,
+                            FriendRelation.status == 'accepted'
+                        )
+                    )
+                ).first()
+
+                if not friend_relation:
+                    flash('You are not friends with this user!', 'error')
+                    return redirect(url_for('session_management'))
+
+                # 检查是否已有活跃会话
+                existing_session = ChatSession.query.filter(
+                    db.or_(
+                        db.and_(
+                            ChatSession.user_id == user_id,
+                            ChatSession.agent_id == friend_id,
+                            ChatSession.end_time.is_(None)
+                        ),
+                        db.and_(
+                            ChatSession.user_id == friend_id,
+                            ChatSession.agent_id == user_id,
+                            ChatSession.end_time.is_(None)
+                        )
+                    )
+                ).first()
+
+                if existing_session:
+                    return redirect(url_for('chat', session_id=existing_session.id))
+
+                # 创建好友会话（用agent_id存储好友ID）
+                new_session = ChatSession(
+                    user_id=user_id,
+                    agent_id=friend_id,
+                    start_time=datetime.now(UTC),
+                    end_time=None,
+                    status='active'
+                )
+                db.session.add(new_session)
+                db.session.commit()
+
+            else:
+                flash('Invalid chat type!', 'error')
+                return redirect(url_for('session_management'))
+
+            # 关键：创建成功后跳转到聊天页面
+            return redirect(url_for('chat', session_id=new_session.id))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Failed to start chat: {str(e)}', 'error')
+            return redirect(url_for('session_management'))
+
+    # 聊天页面路由（确保已实现）
+    @app.route('/chat/<int:session_id>')
+    def chat(session_id):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+        # 验证会话存在性和访问权限
+        chat_session = ChatSession.query.get(session_id)
+        if not chat_session:
+            flash('Chat session not found!', 'error')
+            return redirect(url_for('session_management'))
+
+        user_id = session['user_id']
+        # 检查权限：用户必须是会话发起者或客服/好友
+        if not (chat_session.user_id == user_id or chat_session.agent_id == user_id):
+            flash('You have no permission to access this session!', 'error')
+            return redirect(url_for('session_management'))
+
+        # 获取会话消息
+        messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
+        return render_template('chat.html', session_id=session_id, messages=messages)
