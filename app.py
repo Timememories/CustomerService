@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_socketio import SocketIO, join_room, leave_room, send
 from flask_migrate import Migrate  # 新增：导入迁移工具
-from models import db, Message, ChatSession
+from models import db, Message, ChatSession, User
 from routes import init_routes
 from bot import analyze_sentiment, generate_bot_response
 
@@ -46,14 +46,16 @@ def handle_message(data):
 
     chat_session = ChatSession.query.get(session_id)
     if not chat_session.agent_id:
-        bot_response = generate_bot_response(text, sentiment)
-        bot_msg = Message(session_id=session_id, sender_id=0, text=bot_response, sentiment=0)
-        db.session.add(bot_msg)
-        db.session.commit()
-        send({'msg': bot_response, 'sender': 'Bot', 'sentiment': 0}, to=room)
+        user = User.query.filter_by(id=sender_id).first()
+        if not(user.role == "admin" or user.role == "agent"):
+            bot_response = generate_bot_response(text, sentiment)
+            bot_msg = Message(session_id=session_id, sender_id=0, text=bot_response, sentiment=0)
+            db.session.add(bot_msg)
+            db.session.commit()
+            send({'msg': bot_response, 'sender': 'Bot', 'sentiment': 0}, to=room)
 
-        if sentiment < -0.5:
-            send({'msg': 'Escalating to an agent...', 'sender': 'System', 'sentiment': 0}, to=room)
+            if sentiment < -0.5:
+                send({'msg': 'Escalating to an agent...', 'sender': 'System', 'sentiment': 0}, to=room)
 
 
 if __name__ == '__main__':

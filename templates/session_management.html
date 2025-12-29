@@ -1168,7 +1168,7 @@
                                 {% if session.role == 'user' %}
                                 {{ sess.agent.username if sess.agent else 'System Assistant' }}
                                 {% else %}
-                                {{ sess.user.username }}
+                                {{ sess.initiator.username }}
                                 {% endif %}
                             </td>
                             <td>{{ sess.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
@@ -1252,9 +1252,9 @@
                     </thead>
                     <tbody id="pendingSessionTableBody">
                     {% for sess in pending_sessions %}
-                    <tr data-session-id="{{ sess.id }}" data-user="{{ sess.user.username|lower }}">
+                    <tr data-session-id="{{ sess.id }}" data-user="{{ sess.initiator.username|lower }}">
                         <td>{{ sess.id }}</td>
-                        <td>{{ sess.user.username }}</td>
+                        <td>{{ sess.initiator.username }}</td>
                         <td>{{ sess.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
                         <td>{{ sess.first_message.text|truncate(20) if sess.first_message else 'No messages' }}</td>
                         <td>
@@ -1267,7 +1267,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="/join_chat/{{ sess.id }}" class="btn btn-success btn-sm"
+                            <a href="/chat/{{ sess.id }}" class="btn btn-success btn-sm"
                                aria-label="Take over session {{ sess.id }}" tabindex="0">
                                 <i class="fa fa-user-plus" aria-hidden="true"></i> Take Over
                             </a>
@@ -1660,7 +1660,7 @@
                 {% if session.role == 'user' %}
                 participant = sess.agent?.username || 'System Assistant';
                 {% else %}
-                participant = sess.user?.username || 'Unknown User';
+                participant = sess.initiator?.username || 'Unknown User';
                 {% endif %}
 
                 // 最后消息

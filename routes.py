@@ -943,7 +943,7 @@ def init_routes(app):
 
         user_id = session['user_id']
         # 检查权限：用户必须是会话发起者或客服/好友
-        if not (chat_session.user_id == user_id or chat_session.agent_id == user_id):
+        if not (chat_session.user_id == user_id or chat_session.agent_id == None):
             flash('You have no permission to access this session!', 'error')
             return redirect(url_for('session_management'))
 
