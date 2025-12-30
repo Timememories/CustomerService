@@ -1,5 +1,5 @@
 from flask import redirect, url_for, flash,request, jsonify, session, render_template
-from flask_socketio import emit, SocketIO
+# from flask_socketio import emit, SocketIO
 
 from bot import generate_bot_response,analyze_sentiment, extract_keywords, generate_summary
 from models import db, User, Service, Appointment, ChatSession, Message, FriendRelation
@@ -7,7 +7,7 @@ from datetime import UTC,datetime
 
 
 def init_routes(app):
-    socketio = SocketIO(app)
+    # socketio = SocketIO(app)
 
     @app.route('/')
     def index():
@@ -63,19 +63,19 @@ def init_routes(app):
 
             # 2. 基础参数校验
             if not username:
-                flash('用户名不能为空！', 'error')
+                flash('The username cannot be empty！', 'error')
                 return redirect(url_for('register'))
             if not password:
-                flash('密码不能为空！', 'error')
+                flash('Password cannot be empty！', 'error')
                 return redirect(url_for('register'))
             # 校验角色合法性（仅允许 admin/agent/user）
             if role not in ['admin', 'agent', 'user']:
-                flash('无效的角色类型！', 'error')
+                flash('Invalid role type！', 'error')
                 return redirect(url_for('register'))
 
             # 3. 检查用户名是否已存在
             if User.query.filter_by(username=username).first():
-                flash('用户名已存在，请更换！', 'error')
+                flash('The username already exists, please change it!', 'error')
                 return redirect(url_for('register'))
 
             try:
@@ -88,19 +88,19 @@ def init_routes(app):
                 # 5. 提交数据库
                 db.session.add(user)
                 db.session.commit()
-                flash('注册成功！请登录', 'success')
+                flash('registered successfully Please log in.', 'success')
                 return redirect(url_for('login'))
 
             except ValueError as e:
                 # 捕获密码强度验证失败的异常（User模型的_validate_password_strength）
                 db.session.rollback()  # 回滚事务
-                flash(f'注册失败：{str(e)}', 'error')
+                flash(f'Registration failed：{str(e)}', 'error')
                 return redirect(url_for('register'))
 
             except Exception as e:
                 # 捕获其他数据库异常
                 db.session.rollback()
-                flash(f'系统错误：{str(e)}', 'error')
+                flash(f'System error：{str(e)}', 'error')
                 return redirect(url_for('register'))
 
         # GET请求：渲染注册页面
@@ -162,7 +162,7 @@ def init_routes(app):
             if not username:
                 return jsonify({
                     'success': False,
-                    'message': '用户名/邮箱不能为空！',
+                    'message': 'Username/email cannot be empty!',
                     'exists': False
                 }), 400
 
@@ -175,7 +175,7 @@ def init_routes(app):
             # 4. 返回验证结果
             return jsonify({
                 'success': True,
-                'message': '用户验证成功' if user_exists else '用户不存在',
+                'message': 'User verification successful' if user_exists else 'User does not exist',
                 'exists': user_exists
             }), 200
 
@@ -185,7 +185,7 @@ def init_routes(app):
             print(f"验证用户异常：{str(e)}")  # 生产环境替换为logger.error
             return jsonify({
                 'success': False,
-                'message': f'系统错误：{str(e)}',
+                'message': f'System error：{str(e)}',
                 'exists': False
             }), 500
 
@@ -395,7 +395,7 @@ def init_routes(app):
         if chat_session and (session['role'] == 'admin' or chat_session.agent_id == session['user_id']):
             chat_session.end_time = datetime.now()
             db.session.commit()
-            flash('会话已结束', 'success')
+            flash('The session has ended', 'success')
 
         return redirect(url_for('session_management'))
 
@@ -1020,24 +1020,6 @@ def init_routes(app):
             return 'Neutral'
 
     # Socket.IO AI分析事件（实时分析）
-    @socketio.on('ai_analysis')
-    def handle_ai_analysis(data):
-        text = data.get('text', '')
-        if not text:
-            emit('ai_analysis_result', {'success': False, 'message': 'Text is required'})
-            return
-
-        try:
-            sentiment = analyze_sentiment(text)
-            keywords = extract_keywords(text)
-            emit('ai_analysis_result', {
-                'success': True,
-                'sentiment': round(sentiment, 2),
-                'keywords': keywords,
-                'label': get_sentiment_label(sentiment)
-            })
-        except Exception as e:
-            emit('ai_analysis_result', {'success': False, 'message': str(e)})
 
     @app.route('/user_management')
     def user_management():
