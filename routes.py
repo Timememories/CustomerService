@@ -122,9 +122,9 @@ def init_routes(app):
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         # 若用户已登录，直接跳转到仪表盘
-        # If user is already logged in, redirect directly to dashboard
+        # If user is already logged in, redirect directly to session_management
         if 'user_id' in session:
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('session_management'))
 
         if request.method == 'POST':
             # 1. 获取并清理表单数据
@@ -196,7 +196,8 @@ def init_routes(app):
             # 注：根据你的User模型字段调整，若有email字段则添加OR条件
             # Note: Adjust according to your User model fields, add OR condition if there is an email field
             user_exists = User.query.filter(
-                User.username == username  # 若有邮箱字段可改为：or_(User.username==username, User.email==username) / If there is an email field, can be changed to: or_(User.username==username, User.email==username)
+                User.username == username
+                # 若有邮箱字段可改为：or_(User.username==username, User.email==username) / If there is an email field, can be changed to: or_(User.username==username, User.email==username)
             ).first() is not None
 
             # 4. 返回验证结果
@@ -299,7 +300,8 @@ def init_routes(app):
             # 6. Return success result
             return jsonify({
                 'success': True,
-                'message': 'Password reset successfully! You can now login with your new password.'  # 密码重置成功！您现在可以使用新密码登录。
+                'message': 'Password reset successfully! You can now login with your new password.'
+                # 密码重置成功！您现在可以使用新密码登录。
             }), 200
 
         except Exception as e:
@@ -491,7 +493,7 @@ def init_routes(app):
         user = User.query.get(session['user_id'])
         if not user:
             flash('User not found', 'error')  # 未找到用户
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('session_management'))
 
         if request.method == 'POST':
             try:
@@ -559,7 +561,7 @@ def init_routes(app):
         db.session.add(appt)
         db.session.commit()
         flash('Appointment booked')  # 预约已成功
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('session_management'))
 
     @app.route('/rate_appointment/<int:appt_id>', methods=['POST'])
     def rate_appointment(appt_id):
@@ -571,7 +573,7 @@ def init_routes(app):
             appt.rating = rating
             db.session.commit()
             flash('Rated successfully')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('session_management'))
 
     @app.route('/join_chat/<int:session_id>')
     def join_chat(session_id):
@@ -594,7 +596,7 @@ def init_routes(app):
         db.session.add(service)
         db.session.commit()
         flash('Service added')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('session_management'))
 
     @app.route('/admin/delete_user/<int:user_id>')
     def delete_user(user_id):
@@ -819,12 +821,12 @@ def init_routes(app):
         user_id = request.args.get('user_id')
         if not user_id:
             flash('User ID is required', 'error')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('session_management'))
 
         user = User.query.get(user_id)
         if not user:
             flash('User not found', 'error')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('session_management'))
 
         return render_template('profile.html', user=user)
 
@@ -1002,7 +1004,6 @@ def init_routes(app):
         messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
         return render_template('chat.html', session_id=session_id, messages=messages)
 
-
     # AI分析页面路由（展示分析结果）
     @app.route('/ai_analysis')
     def ai_analysis():
@@ -1023,7 +1024,7 @@ def init_routes(app):
                 if not (chat_session.user_id == user_id or chat_session.agent_id == user_id or session[
                     'role'] == 'admin'):
                     flash('No permission to view this session analysis', 'error')
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for('session_management'))
 
                 # 获取该会话所有消息
                 messages = Message.query.filter_by(session_id=session_id).order_by(Message.timestamp).all()
@@ -1092,7 +1093,7 @@ def init_routes(app):
         if 'user_id' not in session or session['role'] != 'admin':
             flash('Permission denied', 'error')
             return redirect(url_for('login'))
-        users = User.query.filter(User.is_deleted==False).all()
+        users = User.query.filter(User.is_deleted == False).all()
         return render_template('user_management.html', users=users)
 
     # 用户管理相关路由 - 仅管理员可访问
@@ -1133,7 +1134,7 @@ def init_routes(app):
                 db.session.add(new_user)
                 db.session.commit()
                 flash(f'User {username} added successfully!', 'success')
-                return redirect(url_for('dashboard'))  # 重定向到管理员面板
+                return redirect(url_for('session_management'))  # 重定向到管理员面板
             except Exception as e:
                 db.session.rollback()
                 flash(f'Error adding user: {str(e)}', 'error')
