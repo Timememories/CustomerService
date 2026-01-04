@@ -65,9 +65,9 @@ SmartSupport Intelligent Customer Service Management System is a full-process cu
 
 ### 4.2 后端技术栈 (Backend Technology Stack)
 
-- 开发框架 (Development Framework)：Django 4.2 (Python)
+- 开发框架 (Development Framework)：flask 4.2 (Python)
 
-- 数据库 (Database)：MySQL 8.0（业务数据）、Redis（缓存/会话）
+- 数据库 (Database)：SQLite (SQLite)）
 
 - API规范 (API Specification)：RESTful API
 
@@ -129,4 +129,3 @@ SmartSupport Intelligent Customer Service Management System is a full-process cu
 - 开发团队 (Development Team)：SmartSupport Dev Team
 
 - 文档更新时间 (Document Update Time)：2025-12-30
-> （注：文档部分内容可能由 AI 生成）
