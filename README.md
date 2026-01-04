@@ -1,131 +1,145 @@
-## 项目说明文档 (Project Documentation)
+# Intelligent Customer Service System: Flask-SQLAlchemy-Jinja2 Platform
 
-## 1. 项目基本信息 (Basic Project Information)
+### [README.md](README.md) (中英双语版，更新项目名称为Intelligent customer service system)
 
-|项目信息 (Project Info)|详情 (Details)|
-|---|---|
-|项目名称 (Project Name)|SmartSupport 智能客服管理系统|
-|项目版本 (Project Version)|v1.0.0|
-|开发语言 (Development Language)|前端 (Frontend)：JavaScript/HTML/CSS；后端 (Backend)：Python|
-|开发日期 (Development Date)|2025|
-|适用场景 (Application Scenarios)|企业级客户服务管理、在线咨询、预约调度|
-## 2. 项目概述 (Project Overview)
+# Intelligent customer service system - 智能客户服务系统
 
-### 中文
+# Intelligent customer service system - Intelligent Customer Service System
 
-SmartSupport 智能客服管理系统是一套全流程的客户服务解决方案，旨在打通用户咨询、服务预约、工单处理全链路，为企业构建高效、标准化的客服体系。系统基于角色权限设计，为普通用户、客服人员、系统管理员提供差异化功能模块，兼顾用户体验与管理效率，支持多终端适配，满足企业线上客服场景的全维度需求。
+一个基于 Flask + SQLAlchemy + Jinja2 构建的智能客户服务管理平台，提供用户认证、智能客服会话管理、权限控制等核心功能，支持多角色协作与高效客户服务流程。  
 
-### English
+An intelligent customer service management platform built with Flask + SQLAlchemy + Jinja2, providing core functions such as user authentication, intelligent customer service session management, and permission control, supporting multi-role collaboration and efficient customer service processes.
 
-SmartSupport Intelligent Customer Service Management System is a full-process customer service solution designed to connect the entire link of user consultation, service appointment, and work order processing, helping enterprises build an efficient and standardized customer service system. Based on role-based permission design, the system provides differentiated functional modules for ordinary users, customer service agents, and system administrators, balancing user experience and management efficiency, and supporting multi-terminal adaptation to meet all-dimensional needs of enterprises' online customer service scenarios.
+## 项目概述 | Project Overview
 
-## 3. 核心功能模块 (Core Functional Modules)
+该系统旨在为企业提供智能化、标准化的客户服务解决方案，通过分层权限管理（管理员/客服人员/普通用户）实现服务流程的规范化与高效化。系统采用经典的后端渲染架构，结合轻量化前端交互设计，兼顾智能服务能力与管理效率，适配企业级客户服务场景的多样化需求。  
 
-### 3.1 用户中心 (User Center)
+This system aims to provide intelligent and standardized customer service solutions for enterprises, realizing the standardization and efficiency of service processes through hierarchical permission management (Administrator/Customer Service Agent/Regular User). It adopts a classic server-side rendering architecture combined with lightweight front-end interaction design, balancing intelligent service capabilities and management efficiency to adapt to the diverse needs of enterprise-level customer service scenarios.
 
-|功能 (Function)|中文描述 (Chinese Description)|English Description|
-|---|---|---|
-|账号管理|支持用户注册、登录、密码重置，集成手机号/邮箱验证机制，保障账号安全|Supports user registration, login, password reset, and integrates mobile phone/email verification mechanisms to ensure account security|
-|个人信息管理|用户可编辑个人资料、查看操作日志、管理消息通知偏好|Users can edit personal information, view operation logs, and manage message notification preferences|
-|权限控制|基于RBAC模型实现角色分级（普通用户/客服/管理员），不同角色对应不同操作权限|Implements role grading (ordinary user/customer service/administrator) based on the RBAC model, with different roles corresponding to different operation permissions|
-### 3.2 客服交互 (Customer Service Interaction)
+## 技术栈 | Technology Stack
 
-|功能 (Function)|中文描述 (Chinese Description)|English Description|
-|---|---|---|
-|实时在线聊天|支持文字/图片/文件消息交互，集成智能回复模板，提升客服响应效率|Supports text/image/file message interaction, integrates intelligent reply templates to improve customer service response efficiency|
-|会话管理|客服可查看待处理/已处理会话列表，支持会话转接、挂起、结束操作|Customer service agents can view pending/processed session lists, and support session transfer, suspension, and termination operations|
-|聊天记录追溯|所有会话内容持久化存储，支持按时间/用户/关键词检索，便于问题复盘|All session content is persistently stored, supporting retrieval by time/user/keywords for easy problem review|
-### 3.3 预约管理 (Appointment Management)
+### 核心框架 | Core Framework
 
-|功能 (Function)|中文描述 (Chinese Description)|English Description|
-|---|---|---|
-|服务预约|用户可选择服务类型、预约时段，系统自动校验资源可用性并完成预约|Users can select service types and appointment time slots, and the system automatically verifies resource availability and completes the appointment|
-|预约状态管理|支持预约确认、取消、改期操作，同步推送状态变更通知至用户/客服|Supports appointment confirmation, cancellation, and rescheduling operations, and synchronously pushes status change notifications to users/customer service agents|
-|服务评价|服务完成后用户可对服务质量评分、填写评语，评价数据同步至管理后台|After service completion, users can rate service quality and fill in comments, and evaluation data is synchronized to the management background|
-### 3.4 管理后台 (Admin Backend)
+- **后端 | Backend**: Python + Flask 4.2 (Web框架 | Web Framework)
 
-|功能 (Function)|中文描述 (Chinese Description)|English Description|
-|---|---|---|
-|用户管理|管理员可查看/新增/禁用用户账号，配置用户角色与权限范围|Administrators can view/add/disable user accounts and configure user roles and permission scopes|
-|服务配置|自定义服务类型、服务时长、服务人员排班规则，灵活适配业务需求|Customize service types, service duration, and service staff scheduling rules to flexibly adapt to business needs|
-|数据统计|生成客服响应率、预约完成率、用户满意度等多维度报表，支持导出|Generates multi-dimensional reports on customer service response rate, appointment completion rate, user satisfaction, etc., with export support|
-## 4. 技术架构 (Technical Architecture)
+- **ORM**: SQLAlchemy (数据库交互 | Database Interaction)
 
-### 4.1 前端技术栈 (Frontend Technology Stack)
+- **模板引擎 | Template Engine**: Jinja2 (动态页面渲染 | Dynamic Page Rendering)
 
-- 核心框架 (Core Framework)：jinjia2
+- **数据库 | Database**: SQLite (轻量嵌入式数据库，便于部署 | Lightweight embedded database for easy deployment)
 
-- UI组件库 (UI Component Library)：Element Plus
+- **前端 | Frontend**:
 
-- 状态管理 (State Management)：Pinia
+  - 样式框架 | Styling Framework: Bootstrap 5.3 + 自定义CSS变量 | Custom CSS Variables
 
-- 通信协议 (Communication Protocol)：WebSocket（实时聊天）、Axios（接口请求）
+  - 交互 | Interaction: 原生JavaScript + Font Awesome图标 | Native JavaScript + Font Awesome Icons
 
-- 适配方案 (Adaptation Solution)：Responsive Layout（响应式布局），支持PC/移动端
+  - 响应式设计 | Responsive Design: 适配PC与移动端 | Compatible with PC and Mobile Devices
 
-### 4.2 后端技术栈 (Backend Technology Stack)
+## 功能模块 | Functional Modules
 
-- 开发框架 (Development Framework)：flask 4.2 (Python)
+### 1. 用户认证与管理 | User Authentication & Management
 
-- 数据库 (Database)：SQLite (SQLite)）
+- 账号注册/登录/密码重置（支持密码强度检测与验证）| Account registration/login/password reset (supports password strength detection and verification)
 
-- API规范 (API Specification)：RESTful API
+- 基于角色的权限控制（RBAC）| Role-Based Access Control (RBAC):
 
-- 部署方式 (Deployment Method)：Docker容器化部署
+  - 管理员 | Administrator: 用户管理、权限配置、系统参数设置 | User management, permission configuration, system parameter setting
 
-## 5. 部署与使用 (Deployment and Usage)
+  - 客服人员 | Customer Service Agent: 智能会话处理、客户沟通、服务记录维护 | Intelligent session processing, customer communication, service record maintenance
 
-### 5.1 部署要求 (Deployment Requirements)
+  - 普通用户 | Regular User: 发起智能咨询、查看服务记录、提交服务评价 | Initiate intelligent consultations, view service records, submit service evaluations
 
-|环境 (Environment)|中文要求 (Chinese Requirements)|English Requirements|
-|---|---|---|
-|服务器配置|CPU：2核及以上；内存：4GB及以上；磁盘：50GB及以上|CPU: 2 cores or above; Memory: 4GB or above; Disk: 50GB or above|
-|运行环境|操作系统：Linux (CentOS 7+/Ubuntu 20.04+)；Python 3.9+；Node.js 16+|OS: Linux (CentOS 7+/Ubuntu 20.04+); Python 3.9+; Node.js 16+|
-|网络要求|开放80/443端口，支持WebSocket协议|Open ports 80/443 and support WebSocket protocol|
-### 5.2 快速启动 (Quick Start)
+### 2. 智能客服会话管理 | Intelligent Customer Service Session Management
 
-#### 中文
+- 实时会话列表展示（包含会话ID、用户信息、创建时间、智能标签）| Real-time session list display (including session ID, user info, creation time, intelligent tags)
 
-1. 克隆代码仓库：`git clone https://github.com/xxx/smartsupport.git`
+- 会话状态跟踪（待处理/处理中/已结束/已转接）| Session status tracking (Pending/In Progress/Completed/Transferred)
 
-2. 前端部署：进入`frontend`目录，执行`npm install && npm run build`，将dist目录部署至Nginx
+- 历史会话记录查询与追溯（支持关键词智能检索）| Historical session record query and traceability (support intelligent keyword retrieval)
 
-3. 后端部署：进入`backend`目录，配置`settings.py`数据库信息，执行`python manage.py migrate`初始化数据库，`python manage.py runserver 0.0.0.0:8000`启动服务
+- 智能回复模板调用（提升客服响应效率）| Intelligent reply template invocation (improve customer service response efficiency)
 
-4. 访问系统：浏览器输入服务器IP+端口，默认管理员账号：admin/123456
+### 3. 系统管理与数据分析 | System Management & Data Analysis
 
-#### English
+- 仪表盘数据可视化（客服工作量、响应效率、用户满意度等核心指标）| Dashboard data visualization (core metrics such as agent workload, response efficiency, user satisfaction)
 
-1. Clone the code repository: `git clone https://github.com/xxx/smartsupport.git`
+- 用户角色与权限精细化配置 | Refined configuration of user roles and permissions
 
-2. Frontend deployment: Enter the `frontend` directory, execute `npm install && npm run build`, and deploy the dist directory to Nginx
+- 操作日志记录与审计（支持按操作类型/时间/用户检索）| Operation log recording and auditing (support retrieval by operation type/time/user)
 
-3. Backend deployment: Enter the `backend` directory, configure the database information in `settings.py`, execute `python manage.py migrate` to initialize the database, and `python manage.py runserver 0.0.0.0:8000` to start the service
+- 服务数据统计与导出（按日/周/月生成报表）| Service data statistics and export (generate reports by day/week/month)
 
-4. Access the system: Enter the server IP + port in the browser, default administrator account: admin/123456
+## 项目结构 | Project Structure
 
-## 6. 维护与更新 (Maintenance and Update)
+```Plain Text
 
-### 中文
+```
 
-1. 数据备份：建议每日定时备份数据库，备份文件存储至独立服务器，避免数据丢失
+## 部署指南 | Deployment Guide
 
-2. 版本更新：系统迭代更新前需先备份代码与数据，更新后执行数据库迁移脚本
+### 环境要求 | Environment Requirements
 
-3. 问题反馈：用户可通过系统内置的“意见反馈”模块提交问题，管理员定期处理并优化
+- Python 3.9+
 
-### English
+- 依赖管理 | Dependency Management: pip
 
-1. Data backup: It is recommended to back up the database regularly every day, and store backup files on an independent server to avoid data loss
+### 部署步骤 | Deployment Steps
 
-2. Version update: Back up code and data before system iterative update, and execute database migration scripts after update
+1. **克隆仓库 | Clone the Repository**
 
-3. Issue feedback: Users can submit issues through the built-in "Feedback" module, and administrators handle and optimize them regularly
+   ```Bash
+   
+   ```
 
-## 7. 联系方式 (Contact Information)
+2. **创建虚拟环境 | Create a Virtual Environment**
 
-- 技术支持邮箱 (Technical Support Email)：[support@smartsupport.com](mailto:support@smartsupport.com)
+   ```Bash
+   
+   ```
 
-- 开发团队 (Development Team)：SmartSupport Dev Team
+3. **安装依赖 | Install Dependencies**
 
-- 文档更新时间 (Document Update Time)：2025-12-30
+   ```Bash
+   
+   ```
+
+4. **初始化数据库 | Initialize the Database**
+
+   ```Bash
+   
+   ```
+
+5. **启动应用 | Start the Application**
+
+   ```Bash
+   
+   ```
+
+## 界面设计特点 | UI Design Features
+
+- **品牌一致性 | Brand Consistency**: 采用科技感淡紫色（#9F7AEA）为主色调，配合浅蓝渐变背景，契合智能客服的产品定位 | Uses tech-style light purple (#9F7AEA) as the main color, combined with light blue gradient backgrounds, aligning with the product positioning of intelligent customer service
+
+- **交互优化 | Interaction Optimization**: 密码显隐切换、表单实时验证、智能回复联想、提交状态反馈等细节提升用户体验 | Password show/hide toggle, real-time form validation, intelligent reply association, submission status feedback and other details to improve user experience
+
+- **响应式布局 | Responsive Layout**: 适配桌面端、平板与移动端，确保多终端使用一致性 | Adapt to desktop, tablet and mobile terminals to ensure consistent use across multiple devices
+
+- **错误处理 | Error Handling**: 友好的404/500错误页面，提供智能问题排查指引与人工支持入口 | User-friendly 404/500 error pages with intelligent troubleshooting guidelines and manual support entrances
+
+## 扩展建议 | Extension Suggestions
+
+1. 集成WebSocket实现实时智能聊天与消息推送 | Integrate WebSocket to implement real-time intelligent chat and message push
+
+2. 接入LLM大语言模型，实现智能意图识别与自动回复 | Connect LLM (Large Language Model) to implement intelligent intent recognition and automatic replies
+
+3. 对接企业邮箱/短信服务，实现服务通知与密码重置提醒 | Connect enterprise email/SMS services to implement service notifications and password reset reminders
+
+4. 迁移至PostgreSQL/MySQL，支持高并发与海量会话数据存储 | Migrate to PostgreSQL/MySQL to support high concurrency and massive session data storage
+
+5. 增加多语言支持，适配跨境企业客户服务场景 | Add multi-language support to adapt to cross-border enterprise customer service scenarios
+
+如需进一步开发或定制功能，请参考代码注释与Flask官方文档进行扩展。  
+
+For further development or custom function customization, please refer to the code comments and Flask official documentation for extension.
+
+> （注：文档部分内容可能由 AI 生成）
