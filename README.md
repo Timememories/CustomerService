@@ -53,7 +53,7 @@ SmartSupport Intelligent Customer Service Management System is a full-process cu
 
 ### 4.1 前端技术栈 (Frontend Technology Stack)
 
-- 核心框架 (Core Framework)：Vue 3 + Vite
+- 核心框架 (Core Framework)：jinjia2
 
 - UI组件库 (UI Component Library)：Element Plus
 
